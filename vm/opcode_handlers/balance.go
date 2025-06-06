@@ -7,18 +7,22 @@ import (
 
 type BalanceOpCode struct{}
 
-func (*BalanceOpCode) Execute(vm *vm.DebuggerVM) error {
-	if err := vm.RequireStack(1); err != nil {
+func (*BalanceOpCode) Execute(v *vm.DebuggerVM) error {
+	// The BALANCE opcode requires at least one item on the stack.
+	if err := v.RequireStack(1); err != nil {
 		return err
 	}
-	addrBytes, err := vm.Stack.Pop()
+
+	// Pop the address from the stack.
+	addrBytes, err := v.Stack.Pop()
 	if err != nil {
 		return err
 	}
-	// The debugger does not simulate other accounts, so we assume balance is 0 for now
-	// You could later plug in external state if needed
+
+	// The address must be 20 bytes (160 bits) long.
 	if addrBytes.BitLen() > 160 {
 		return fmt.Errorf("invalid address length")
 	}
-	return vm.Push(vm.Context.Balance)
+
+	return v.Push(v.Context.Balance)
 }

@@ -7,17 +7,21 @@ import (
 
 type SDivOpCode struct{}
 
-func (*SDivOpCode) Execute(vm *vm.DebuggerVM) error {
-	if err := vm.RequireStack(2); err != nil {
+func (*SDivOpCode) Execute(v *vm.DebuggerVM) error {
+	// The SDIV opcode requires two values on the stack.
+	if err := v.RequireStack(2); err != nil {
 		return err
 	}
-	a, b, err := vm.Pop2()
+
+	// Pop the top two items from the stack.
+	a, b, err := v.Pop2()
 	if err != nil {
 		return err
 	}
 
+	// If the divisor is zero, return 0 as per EVM specification.
 	if b.Sign() == 0 {
-		return vm.Push(big.NewInt(0))
+		return v.Push(big.NewInt(0))
 	}
 
 	// Interpret as signed values
@@ -26,14 +30,17 @@ func (*SDivOpCode) Execute(vm *vm.DebuggerVM) error {
 		sa.Sub(sa, uint256)
 	}
 
+	// Handle the case where the divisor is negative
 	sb := new(big.Int).Set(b)
 	if sb.Cmp(uint256Half) >= 0 {
 		sb.Sub(sb, uint256)
 	}
 
+	// Perform the signed division.
 	res := new(big.Int).Div(sa, sb)
 	if res.Sign() < 0 {
 		res.Add(res, uint256)
 	}
-	return vm.Push(res)
+
+	return v.Push(res)
 }

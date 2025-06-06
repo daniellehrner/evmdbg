@@ -8,6 +8,7 @@ import (
 
 type Push0OpCode struct{}
 
-func (*Push0OpCode) Execute(vm *vm.DebuggerVM) error {
-	return vm.Push(big.NewInt(0))
+func (*Push0OpCode) Execute(v *vm.DebuggerVM) error {
+	// Push the value 0 onto the stack.
+	return v.Push(big.NewInt(0))
 }

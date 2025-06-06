@@ -9,6 +9,7 @@ type LogNOpCode struct {
 }
 
 func (op *LogNOpCode) Execute(v *vm.DebuggerVM) error {
+	// LogN requires 2 + N values on the stack: offset, size, and N topics.
 	if err := v.RequireStack(2 + op.N); err != nil {
 		return err
 	}
@@ -27,11 +28,13 @@ func (op *LogNOpCode) Execute(v *vm.DebuggerVM) error {
 	if err != nil {
 		return err
 	}
+
 	offset, err := v.Stack.Pop()
 	if err != nil {
 		return err
 	}
 
+	// read data from memory at the specified offset and size
 	data := v.Memory.Read(int(offset.Uint64()), int(size.Uint64()))
 
 	v.Logs = append(v.Logs, vm.LogEntry{
@@ -39,5 +42,6 @@ func (op *LogNOpCode) Execute(v *vm.DebuggerVM) error {
 		Topics:  topics,
 		Data:    data,
 	})
+
 	return nil
 }

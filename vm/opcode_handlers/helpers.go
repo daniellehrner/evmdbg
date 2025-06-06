@@ -2,7 +2,7 @@ package opcode_handlers
 
 import "math/big"
 
-// eqivalent to 2^256 - 1
+// equivalent to 2^256 - 1
 var uint256Mask = new(big.Int).Sub(new(big.Int).Lsh(big.NewInt(1), 256), big.NewInt(1))
 
 var uint256 = new(big.Int).Lsh(big.NewInt(1), 256)

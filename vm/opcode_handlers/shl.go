@@ -7,27 +7,34 @@ import (
 
 type ShlOpCode struct{}
 
-func (*ShlOpCode) Execute(vm *vm.DebuggerVM) error {
-	if err := vm.RequireStack(2); err != nil {
+func (*ShlOpCode) Execute(v *vm.DebuggerVM) error {
+	// The SHL opcode requires two values on the stack
+	if err := v.RequireStack(2); err != nil {
 		return err
 	}
 
-	shift, value, err := vm.Pop2()
+	// Pop the top two items from the stack
+	shift, value, err := v.Pop2()
 	if err != nil {
 		return err
 	}
 
+	// if the shift is greater than 256 bits, the result is zero
 	if shift.BitLen() > 256 {
-		return vm.Push(new(big.Int)) // result is zero
+		return v.Push(new(big.Int)) // result is zero
 	}
 
+	// EVM word size is 256 bits: apply shift left operation
 	n := shift.Uint64()
 	if n >= 256 {
-		return vm.Push(new(big.Int)) // shift too far, zero
+		return v.Push(new(big.Int)) // shift too far, zero
 	}
 
+	// Perform the left shift operation
 	res := new(big.Int).Lsh(value, uint(n))
-	res.And(res, uint256Mask) // mask to 256 bits
 
-	return vm.Push(res)
+	// mask to 256 bits
+	res.And(res, uint256Mask)
+
+	return v.Push(res)
 }

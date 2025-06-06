@@ -23,7 +23,7 @@ type DebuggerVM struct {
 	Logs        []LogEntry
 
 	Context       *ExecutionContext
-	JumpDests     map[uint64]struct{}
+	CodeMetadata  *CodeMetadata
 	HandlerGetter HandlerGetter
 }
 
@@ -56,32 +56,19 @@ type BlockContext struct {
 	ChainID    *big.Int
 }
 
+type CodeMetadata struct {
+	ValidPC   map[uint64]struct{}
+	JumpDests map[uint64]struct{}
+}
+
 func NewDebuggerVM(code []byte, hg HandlerGetter) *DebuggerVM {
 	return &DebuggerVM{
 		Code:          code,
 		Stack:         NewStack(),
 		Memory:        NewMemory(),
 		HandlerGetter: hg,
-		JumpDests:     scanJumpDests(code),
+		CodeMetadata:  scanCodeMetadata(code),
 	}
-}
-
-func scanJumpDests(code []byte) map[uint64]struct{} {
-	dests := make(map[uint64]struct{})
-	for pc := 0; pc < len(code); {
-		op := code[pc]
-		if op == 0x5b { // JUMPDEST
-			dests[uint64(pc)] = struct{}{}
-			pc++
-			// ignore PUSH1 to PUSH32 and their intermediates
-		} else if op >= 0x60 && op <= 0x7f { // PUSH1 to PUSH32
-			pushLen := int(op - 0x5f)
-			pc += 1 + pushLen
-		} else {
-			pc++
-		}
-	}
-	return dests
 }
 
 func (vm *DebuggerVM) Step() error {
@@ -99,6 +86,29 @@ func (vm *DebuggerVM) Step() error {
 	}
 
 	return handler.Execute(vm)
+}
+
+func (vm *DebuggerVM) RunUntil(breakpoints map[uint64]struct{}) error {
+	for {
+		if vm.Stopped || int(vm.PC) >= len(vm.Code) {
+			vm.Stopped = true
+			return nil
+		}
+
+		if _, ok := breakpoints[vm.PC]; ok {
+			return nil // reached a breakpoint
+		}
+
+		// Only execute at valid PC (not in PUSH immediate)
+		if _, ok := vm.CodeMetadata.ValidPC[vm.PC]; !ok {
+			return fmt.Errorf("invalid PC: 0x%x (likely inside PUSH immediate)", vm.PC)
+		}
+
+		err := vm.Step()
+		if err != nil {
+			return err
+		}
+	}
 }
 
 func (vm *DebuggerVM) ReadCodeByte(offset uint64) (byte, error) {
@@ -193,4 +203,39 @@ func (vm *DebuggerVM) UseGas(amount uint64) error {
 	}
 	vm.Context.Gas -= amount
 	return nil
+}
+
+func (vm *DebuggerVM) IsValidPC(pc uint64) bool {
+	_, ok := vm.CodeMetadata.ValidPC[pc]
+	return ok
+}
+
+func (vm *DebuggerVM) IsJumpDest(pc uint64) bool {
+	_, ok := vm.CodeMetadata.JumpDests[pc]
+	return ok
+}
+
+func scanCodeMetadata(code []byte) *CodeMetadata {
+	validPC := make(map[uint64]struct{})
+	jumpDests := make(map[uint64]struct{})
+
+	for pc := 0; pc < len(code); {
+		validPC[uint64(pc)] = struct{}{}
+
+		op := code[pc]
+		if op == 0x5b { // JUMPDEST
+			jumpDests[uint64(pc)] = struct{}{}
+			pc++
+		} else if op >= 0x60 && op <= 0x7f { // PUSH1 to PUSH32
+			pushLen := int(op - 0x5f)
+			pc += 1 + pushLen
+		} else {
+			pc++
+		}
+	}
+
+	return &CodeMetadata{
+		ValidPC:   validPC,
+		JumpDests: jumpDests,
+	}
 }

@@ -7,20 +7,26 @@ import (
 
 type MulModOpCode struct{}
 
-func (*MulModOpCode) Execute(vm *vm.DebuggerVM) error {
-	if err := vm.RequireStack(3); err != nil {
+func (*MulModOpCode) Execute(v *vm.DebuggerVM) error {
+	// MULMOD requires three values on the stack.
+	if err := v.RequireStack(3); err != nil {
 		return err
 	}
-	a, b, m, err := vm.Pop3()
+
+	// Pop the top three items from the stack.
+	a, b, m, err := v.Pop3()
 	if err != nil {
 		return err
 	}
 
+	// If the modulus is zero, return zero as per EVM rules.
 	if m.Sign() == 0 {
-		return vm.Push(big.NewInt(0))
+		return v.Push(big.NewInt(0))
 	}
 
+	// Perform the multiplication and then take modulo.
 	prod := new(big.Int).Mul(a, b)
 	prod.Mod(prod, m)
-	return vm.Push(prod)
+
+	return v.Push(prod)
 }

@@ -5,6 +5,6 @@ import "github.com/daniellehrner/evmdbg/vm"
 type PCOpCode struct{}
 
 func (*PCOpCode) Execute(v *vm.DebuggerVM) error {
-	// PC was already incremented before Execute
+	// Push the current program counter (PC) onto the stack.
 	return v.PushUint64(v.PC - 1)
 }

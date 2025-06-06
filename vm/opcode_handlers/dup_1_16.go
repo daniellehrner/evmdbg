@@ -10,12 +10,17 @@ type DupOpCode struct {
 }
 
 func (d *DupOpCode) Execute(v *vm.DebuggerVM) error {
+	// The DUP opcodes require the stack to have at least N elements.
 	if err := v.RequireStack(d.N); err != nil {
 		return err
 	}
+
+	// Peek the N-th element from the top of the stack (0-indexed).
 	val, err := v.Stack.Peek(d.N - 1)
 	if err != nil {
 		return err
 	}
-	return v.Stack.Push(new(big.Int).Set(val)) // copy
+
+	// Push a copy of the N-th element onto the stack.
+	return v.Stack.Push(new(big.Int).Set(val))
 }
