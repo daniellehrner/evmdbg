@@ -65,13 +65,15 @@ type ExecutionContext struct {
 }
 
 type BlockContext struct {
-	Coinbase   [20]byte
-	Timestamp  uint64
-	Number     uint64
-	Difficulty *uint256.Int
-	GasLimit   uint64
-	ChainID    *uint256.Int
-	BaseFee    *uint256.Int
+	Coinbase    [20]byte
+	Timestamp   uint64
+	Number      uint64
+	Difficulty  *uint256.Int
+	GasLimit    uint64
+	ChainID     *uint256.Int
+	BaseFee     *uint256.Int
+	BlobBaseFee *uint256.Int // EIP-4844: Blob base fee
+	BlobHashes  [][32]byte   // EIP-4844: Versioned hashes of the blobs
 }
 
 type CodeMetadata struct {

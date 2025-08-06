@@ -55,6 +55,8 @@ var handlers = map[vm.OpCode]vm.Handler{
 	vm.CHAINID:        &ChainIdOpCode{},
 	vm.SELFBALANCE:    &SelfBalanceOpCode{},
 	vm.BASEFEE:        &BaseFeeOpCode{},
+	vm.BLOBHASH:       &BlobHashOpCode{},
+	vm.BLOBBASEFEE:    &BlobBaseFeeOpCode{},
 	vm.POP:            &PopOpCode{},
 	vm.MLOAD:          &MLoadOpCode{},
 	vm.MSTORE:         &MStoreOpCode{},

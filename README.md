@@ -21,11 +21,9 @@ A minimal Ethereum Virtual Machine (EVM) execution engine and debugger written i
 
 ## Status
 
-Implemented opcodes: ~90-95% of commonly used opcodes.
+Implemented opcodes: ~95% of commonly used opcodes.
 
-**Recently implemented**: `CALL`, `CALLCODE`, `DELEGATECALL`, `STATICCALL`
-
-**Missing**: `CREATE`, `CREATE2`, `EXTCODE*`, `BLOCKHASH`, some precompiled contracts
+**Missing**: `CREATE`, `CREATE2`, `SELFDESTRUCT`, some precompiled contracts
 
 The full set of implemented opcodes can be found in the [vm/opcodes.go](vm/opcodes.go).
 
@@ -252,11 +250,7 @@ Tests should follow the pattern:
 3. Verify final state (stack, memory, storage, logs)
 
 ## Future Work
- - Support for `CREATE`, `CREATE2`, and `EXTCODE*` opcodes
+ - Add missing op codes and precompiled contracts
  - Source mapping and symbolic variable tracking
  - Basic gas accounting
  - Precompiled contract support
-
-## License
-
-This project is experimental and provided as-is for educational and development purposes.
