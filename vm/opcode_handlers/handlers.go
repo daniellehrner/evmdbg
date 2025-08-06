@@ -87,6 +87,7 @@ var handlers = map[vm.OpCode]vm.Handler{
 	vm.RETURN:         &ReturnOpCode{},
 	vm.REVERT:         &RevertOpCode{},
 	vm.INVALID:        &InvalidOpCode{},
+	vm.SELFDESTRUCT:   &SelfDestructOpCode{},
 }
 
 func init() {

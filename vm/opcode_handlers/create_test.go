@@ -90,6 +90,18 @@ func (m *MockStateProviderWithCreate) SetNonce(addr [20]byte, nonce uint64) {
 	m.nonces[addr] = nonce
 }
 
+func (m *MockStateProviderWithCreate) SetBalance(addr [20]byte, balance *uint256.Int) {
+	if acc, exists := m.accounts[addr]; exists {
+		acc.balance = new(uint256.Int).Set(balance)
+	}
+}
+
+func (m *MockStateProviderWithCreate) DeleteAccount(addr [20]byte) error {
+	delete(m.accounts, addr)
+	delete(m.nonces, addr)
+	return nil
+}
+
 func TestCreateOpCode_Execute(t *testing.T) {
 	// Bytecode: PUSH1 0x04 (size), PUSH1 0x00 (offset), PUSH1 0x42 (value), CREATE
 	code := []byte{

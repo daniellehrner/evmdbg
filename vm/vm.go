@@ -42,6 +42,8 @@ type DebuggerVM struct {
 
 	// Return data from last call
 	lastReturnData []byte
+
+	createdInTransaction map[[20]byte]bool
 }
 
 type LogEntry struct {
@@ -125,6 +127,8 @@ type StateProvider interface {
 	CreateAccount(addr [20]byte, code []byte, balance *uint256.Int) error
 	GetNonce(addr [20]byte) uint64
 	SetNonce(addr [20]byte, nonce uint64)
+	SetBalance(addr [20]byte, balance *uint256.Int)
+	DeleteAccount(addr [20]byte) error
 }
 
 func NewDebuggerVM(code []byte, hg HandlerGetter) *DebuggerVM {
@@ -146,10 +150,11 @@ func NewDebuggerVM(code []byte, hg HandlerGetter) *DebuggerVM {
 	}
 
 	vm := &DebuggerVM{
-		frames:           []MessageFrame{initialFrame},
-		Storage:          make(map[string]*uint256.Int),
-		TransientStorage: make(map[string]*uint256.Int),
-		HandlerGetter:    hg,
+		frames:               []MessageFrame{initialFrame},
+		Storage:              make(map[string]*uint256.Int),
+		TransientStorage:     make(map[string]*uint256.Int),
+		HandlerGetter:        hg,
+		createdInTransaction: make(map[[20]byte]bool),
 	}
 
 	return vm
@@ -334,6 +339,21 @@ func (vm *DebuggerVM) WriteTransientStorage(slot *uint256.Int, value *uint256.In
 
 func (vm *DebuggerVM) ClearTransientStorage() {
 	vm.TransientStorage = make(map[string]*uint256.Int)
+}
+
+// MarkAccountCreatedInTransaction marks an account as created in current transaction (EIP-6780)
+func (vm *DebuggerVM) MarkAccountCreatedInTransaction(addr [20]byte) {
+	vm.createdInTransaction[addr] = true
+}
+
+// IsAccountCreatedInTransaction checks if account was created in current transaction (EIP-6780)
+func (vm *DebuggerVM) IsAccountCreatedInTransaction(addr [20]byte) bool {
+	return vm.createdInTransaction[addr]
+}
+
+// ClearCreatedInTransaction clears the creation tracking (for new transactions)
+func (vm *DebuggerVM) ClearCreatedInTransaction() {
+	vm.createdInTransaction = make(map[[20]byte]bool)
 }
 
 func (vm *DebuggerVM) PushBytes(data []byte) error {

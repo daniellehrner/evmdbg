@@ -54,6 +54,14 @@ func (m *mockStateProvider) GetNonce(addr [20]byte) uint64 {
 func (m *mockStateProvider) SetNonce(addr [20]byte, nonce uint64) {
 }
 
+func (m *mockStateProvider) SetBalance(addr [20]byte, balance *uint256.Int) {
+}
+
+func (m *mockStateProvider) DeleteAccount(addr [20]byte) error {
+	delete(m.codeMap, addr)
+	return nil
+}
+
 func TestExtCodeCopyOpCode_Execute(t *testing.T) {
 	// Test address: 0x1234567890123456789012345678901234567890
 	testAddr := [20]byte{0x12, 0x34, 0x56, 0x78, 0x90, 0x12, 0x34, 0x56, 0x78, 0x90, 0x12, 0x34, 0x56, 0x78, 0x90, 0x12, 0x34, 0x56, 0x78, 0x90}

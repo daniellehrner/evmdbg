@@ -100,6 +100,9 @@ func (*Create2OpCode) Execute(v *vm.DebuggerVM) error {
 		return v.Push(uint256.NewInt(0))
 	}
 
+	// Mark account as created in current transaction (EIP-6780)
+	v.MarkAccountCreatedInTransaction(newAddr)
+
 	// Transfer value from caller to new contract
 	if !value.IsZero() {
 		callerBalance := v.StateProvider.GetBalance(senderAddr)

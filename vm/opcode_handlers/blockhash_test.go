@@ -50,6 +50,13 @@ func (m *mockStateProviderForBlockHash) GetNonce(addr [20]byte) uint64 {
 func (m *mockStateProviderForBlockHash) SetNonce(addr [20]byte, nonce uint64) {
 }
 
+func (m *mockStateProviderForBlockHash) SetBalance(addr [20]byte, balance *uint256.Int) {
+}
+
+func (m *mockStateProviderForBlockHash) DeleteAccount(addr [20]byte) error {
+	return nil
+}
+
 func TestBlockHashOpCode_Execute(t *testing.T) {
 	// Test getting hash for block 100 when current block is 150
 	code := []byte{
