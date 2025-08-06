@@ -49,9 +49,12 @@ var handlers = map[vm.OpCode]vm.Handler{
 	vm.DIFFICULTY:     &DifficultyOpCode{},
 	vm.GASLIMIT:       &GasLimitOpCode{},
 	vm.CHAINID:        &ChainIdOpCode{},
+	vm.SELFBALANCE:    &SelfBalanceOpCode{},
+	vm.BASEFEE:        &BaseFeeOpCode{},
 	vm.POP:            &PopOpCode{},
 	vm.MLOAD:          &MLoadOpCode{},
 	vm.MSTORE:         &MStoreOpCode{},
+	vm.MSTORE8:        &MStore8OpCode{},
 	vm.SLOAD:          &SLoadOpCode{},
 	vm.SSTORE:         &SStoreOpCode{},
 	vm.JUMP:           &JumpOpCode{},
@@ -60,6 +63,7 @@ var handlers = map[vm.OpCode]vm.Handler{
 	vm.MSIZE:          &MSizeOpCode{},
 	vm.GAS:            &GasOpCode{},
 	vm.JUMPDEST:       &JumpDestOpCode{},
+	vm.MCOPY:          &MCopyOpCode{},
 	vm.PUSH0:          &Push0OpCode{},
 	vm.LOG0:           &LogNOpCode{N: 0},
 	vm.LOG1:           &LogNOpCode{N: 1},
@@ -72,6 +76,7 @@ var handlers = map[vm.OpCode]vm.Handler{
 	vm.STATICCALL:     &StaticCallOpCode{},
 	vm.RETURN:         &ReturnOpCode{},
 	vm.REVERT:         &RevertOpCode{},
+	vm.INVALID:        &InvalidOpCode{},
 }
 
 func init() {

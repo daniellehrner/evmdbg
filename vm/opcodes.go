@@ -49,9 +49,12 @@ const (
 	DIFFICULTY     = 0x44
 	GASLIMIT       = 0x45
 	CHAINID        = 0x46
+	SELFBALANCE    = 0x47
+	BASEFEE        = 0x48
 	POP            = 0x50
 	MLOAD          = 0x51
 	MSTORE         = 0x52
+	MSTORE8        = 0x53
 	SLOAD          = 0x54
 	SSTORE         = 0x55
 	JUMP           = 0x56
@@ -60,6 +63,7 @@ const (
 	MSIZE          = 0x59
 	GAS            = 0x5a
 	JUMPDEST       = 0x5b
+	MCOPY          = 0x5e
 	PUSH0          = 0x5f
 	PUSH1          = 0x60
 	PUSH2          = 0x61
@@ -136,4 +140,5 @@ const (
 	DELEGATECALL   = 0xf4
 	STATICCALL     = 0xfa
 	REVERT         = 0xfd
+	INVALID        = 0xfe
 )

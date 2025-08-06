@@ -70,6 +70,7 @@ type BlockContext struct {
 	Difficulty *uint256.Int
 	GasLimit   uint64
 	ChainID    *uint256.Int
+	BaseFee    *uint256.Int
 }
 
 type CodeMetadata struct {
