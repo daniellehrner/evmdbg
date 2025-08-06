@@ -4,7 +4,55 @@ import (
 	"testing"
 
 	"github.com/daniellehrner/evmdbg/vm"
+	"github.com/holiman/uint256"
 )
+
+// Mock state provider for testing
+type mockStateProvider struct {
+	codeMap map[[20]byte][]byte
+}
+
+func (m *mockStateProvider) GetBalance(addr [20]byte) *uint256.Int {
+	return uint256.NewInt(0)
+}
+
+func (m *mockStateProvider) GetCode(addr [20]byte) []byte {
+	if code, exists := m.codeMap[addr]; exists {
+		return code
+	}
+	return []byte{}
+}
+
+func (m *mockStateProvider) GetStorage(addr [20]byte, key *uint256.Int) *uint256.Int {
+	return uint256.NewInt(0)
+}
+
+func (m *mockStateProvider) SetStorage(addr [20]byte, key *uint256.Int, value *uint256.Int) {}
+
+func (m *mockStateProvider) AccountExists(addr [20]byte) bool {
+	_, exists := m.codeMap[addr]
+	return exists
+}
+
+func (m *mockStateProvider) GetBlockHash(blockNumber uint64) [32]byte {
+	// Return a simple hash for testing
+	var hash [32]byte
+	hash[0] = byte(blockNumber)      // Low byte of block number
+	hash[1] = byte(blockNumber >> 8) // High byte of block number
+	return hash
+}
+
+func (m *mockStateProvider) CreateAccount(addr [20]byte, code []byte, balance *uint256.Int) error {
+	m.codeMap[addr] = code
+	return nil
+}
+
+func (m *mockStateProvider) GetNonce(addr [20]byte) uint64 {
+	return 0
+}
+
+func (m *mockStateProvider) SetNonce(addr [20]byte, nonce uint64) {
+}
 
 func TestExtCodeCopyOpCode_Execute(t *testing.T) {
 	// Test address: 0x1234567890123456789012345678901234567890

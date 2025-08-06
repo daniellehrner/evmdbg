@@ -73,6 +73,25 @@ func (m *MockStateProvider) GetBlockHash(blockNumber uint64) [32]byte {
 	return hash
 }
 
+func (m *MockStateProvider) CreateAccount(addr [20]byte, code []byte, balance *uint256.Int) error {
+	m.accounts[addr] = MockAccount{
+		code:    code,
+		balance: new(uint256.Int).Set(balance),
+		storage: make(map[string]*uint256.Int),
+		exists:  true,
+	}
+	return nil
+}
+
+func (m *MockStateProvider) GetNonce(addr [20]byte) uint64 {
+	// For simplicity, return 0 for all addresses in tests
+	return 0
+}
+
+func (m *MockStateProvider) SetNonce(addr [20]byte, nonce uint64) {
+	// For simplicity, ignore nonce updates in these tests
+}
+
 func (m *MockStateProvider) AddAccount(addr [20]byte, code []byte, balance *uint256.Int) {
 	m.accounts[addr] = MockAccount{
 		code:    code,

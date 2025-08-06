@@ -122,6 +122,9 @@ type StateProvider interface {
 	SetStorage(addr [20]byte, key *uint256.Int, value *uint256.Int)
 	AccountExists(addr [20]byte) bool
 	GetBlockHash(blockNumber uint64) [32]byte
+	CreateAccount(addr [20]byte, code []byte, balance *uint256.Int) error
+	GetNonce(addr [20]byte) uint64
+	SetNonce(addr [20]byte, nonce uint64)
 }
 
 func NewDebuggerVM(code []byte, hg HandlerGetter) *DebuggerVM {

@@ -39,6 +39,17 @@ func (m *mockStateProviderForBlockHash) GetBlockHash(blockNumber uint64) [32]byt
 	return [32]byte{} // Return zero hash if not found
 }
 
+func (m *mockStateProviderForBlockHash) CreateAccount(addr [20]byte, code []byte, balance *uint256.Int) error {
+	return nil // No-op for block hash tests
+}
+
+func (m *mockStateProviderForBlockHash) GetNonce(addr [20]byte) uint64 {
+	return 0
+}
+
+func (m *mockStateProviderForBlockHash) SetNonce(addr [20]byte, nonce uint64) {
+}
+
 func TestBlockHashOpCode_Execute(t *testing.T) {
 	// Test getting hash for block 100 when current block is 150
 	code := []byte{

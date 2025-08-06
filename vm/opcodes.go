@@ -142,10 +142,12 @@ const (
 	LOG2           = 0xa2
 	LOG3           = 0xa3
 	LOG4           = 0xa4
+	CREATE         = 0xf0
 	CALL           = 0xf1
 	CALLCODE       = 0xf2
 	RETURN         = 0xf3
 	DELEGATECALL   = 0xf4
+	CREATE2        = 0xf5
 	STATICCALL     = 0xfa
 	REVERT         = 0xfd
 	INVALID        = 0xfe
