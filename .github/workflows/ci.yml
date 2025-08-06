@@ -22,6 +22,14 @@ jobs:
       - name: Verify go.mod
         run: go mod tidy && git diff --exit-code || (echo 'go.mod or go.sum is out of date'; exit 1)
 
+      - name: Check formatting
+        run: |
+          if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+            echo "The following files are not properly formatted:"
+            gofmt -s -l .
+            exit 1
+          fi
+
       - name: Build
         run: go build ./...
 

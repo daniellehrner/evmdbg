@@ -52,6 +52,9 @@ go.work.sum
 *.prof
 *.perf
 
+# LLM
+.claude
+
 # Ignore project binaries
 /basic
 /basic.exe
