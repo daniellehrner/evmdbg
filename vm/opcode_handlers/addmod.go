@@ -2,7 +2,7 @@ package opcode_handlers
 
 import (
 	"github.com/daniellehrner/evmdbg/vm"
-	"math/big"
+	"github.com/holiman/uint256"
 )
 
 type AddModOpCode struct{}
@@ -21,13 +21,9 @@ func (*AddModOpCode) Execute(v *vm.DebuggerVM) error {
 
 	// If the modulus is zero, return zero as per EVM specification.
 	if m.Sign() == 0 {
-		return v.Push(big.NewInt(0))
+		return v.Push(uint256.NewInt(0))
 	}
 
-	// Perform the addition and then take the modulus.
-	sum := new(big.Int).Add(a, b)
-	sum.Mod(sum, m)
-
 	// Push the result back onto the stack.
-	return v.Push(sum)
+	return v.Push(new(uint256.Int).AddMod(a, b, m))
 }

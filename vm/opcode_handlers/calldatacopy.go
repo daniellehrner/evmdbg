@@ -1,10 +1,18 @@
 package opcode_handlers
 
-import "github.com/daniellehrner/evmdbg/vm"
+import (
+	"fmt"
+	"github.com/daniellehrner/evmdbg/vm"
+)
 
 type CallDataCopyOpCode struct{}
 
 func (*CallDataCopyOpCode) Execute(v *vm.DebuggerVM) error {
+	err := v.RequireContext()
+	if err != nil {
+		return fmt.Errorf("call data copy op code requires the execution context to be set")
+	}
+
 	// The CALLDATACOPY opcode requires at least three items on the stack:
 	if err := v.RequireStack(3); err != nil {
 		return err

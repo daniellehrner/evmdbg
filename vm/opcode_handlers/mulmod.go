@@ -2,7 +2,7 @@ package opcode_handlers
 
 import (
 	"github.com/daniellehrner/evmdbg/vm"
-	"math/big"
+	"github.com/holiman/uint256"
 )
 
 type MulModOpCode struct{}
@@ -19,14 +19,5 @@ func (*MulModOpCode) Execute(v *vm.DebuggerVM) error {
 		return err
 	}
 
-	// If the modulus is zero, return zero as per EVM rules.
-	if m.Sign() == 0 {
-		return v.Push(big.NewInt(0))
-	}
-
-	// Perform the multiplication and then take modulo.
-	prod := new(big.Int).Mul(a, b)
-	prod.Mod(prod, m)
-
-	return v.Push(prod)
+	return v.Push(new(uint256.Int).MulMod(a, b, m))
 }

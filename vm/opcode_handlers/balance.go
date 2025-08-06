@@ -8,6 +8,11 @@ import (
 type BalanceOpCode struct{}
 
 func (*BalanceOpCode) Execute(v *vm.DebuggerVM) error {
+	err := v.RequireContext()
+	if err != nil {
+		return fmt.Errorf("balance op code requires the execution context to be set")
+	}
+
 	// The BALANCE opcode requires at least one item on the stack.
 	if err := v.RequireStack(1); err != nil {
 		return err

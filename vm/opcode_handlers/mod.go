@@ -2,7 +2,7 @@ package opcode_handlers
 
 import (
 	"github.com/daniellehrner/evmdbg/vm"
-	"math/big"
+	"github.com/holiman/uint256"
 )
 
 type ModOpCode struct{}
@@ -19,11 +19,6 @@ func (*ModOpCode) Execute(v *vm.DebuggerVM) error {
 		return err
 	}
 
-	// If the divisor is zero, return zero as per EVM rules.
-	if b.Sign() == 0 {
-		return v.Push(new(big.Int)) // EVM: mod by zero = 0
-	}
-
 	// Perform the modulo operation.
-	return v.Push(new(big.Int).Mod(a, b))
+	return v.Push(new(uint256.Int).Mod(a, b))
 }

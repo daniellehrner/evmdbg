@@ -2,7 +2,7 @@ package opcode_handlers
 
 import (
 	"github.com/daniellehrner/evmdbg/vm"
-	"math/big"
+	"github.com/holiman/uint256"
 )
 
 type NotOpCode struct{}
@@ -19,7 +19,5 @@ func (*NotOpCode) Execute(v *vm.DebuggerVM) error {
 		return err
 	}
 
-	// EVM word size is 256 bits: apply ^ over 32-byte mask
-	// Perform the NOT operation by XORing with the mask.
-	return v.Push(new(big.Int).Xor(x, uint256Mask))
+	return v.Push(new(uint256.Int).Not(x))
 }

@@ -53,9 +53,9 @@ go.work.sum
 *.perf
 
 # Ignore project binaries
-basic
-basuc.exe
-run_until
-run_until.exe
-inspect
-inspect.exe
+/basic
+/basic.exe
+/run_until
+/run_until.exe
+/inspect
+/inspect.exe

@@ -2,8 +2,9 @@ package opcode_handlers
 
 import (
 	"fmt"
+
 	"github.com/daniellehrner/evmdbg/vm"
-	"math/big"
+	"github.com/holiman/uint256"
 )
 
 type PushNOpCode struct {
@@ -31,6 +32,6 @@ func (p *PushNOpCode) Execute(v *vm.DebuggerVM) error {
 	// This is necessary to skip over the pushed data.
 	v.AdvancePC(uint64(p.N))
 
-	val := new(big.Int).SetBytes(data)
+	val := new(uint256.Int).SetBytes(data)
 	return v.Stack.Push(val)
 }

@@ -2,7 +2,7 @@ package opcode_handlers
 
 import (
 	"github.com/daniellehrner/evmdbg/vm"
-	"math/big"
+	"github.com/holiman/uint256"
 )
 
 type AndOpCode struct{}
@@ -20,5 +20,5 @@ func (*AndOpCode) Execute(v *vm.DebuggerVM) error {
 	}
 
 	// Perform the bitwise AND operation and push the result back onto the stack.
-	return v.Push(new(big.Int).And(a, b))
+	return v.Push(new(uint256.Int).And(a, b))
 }

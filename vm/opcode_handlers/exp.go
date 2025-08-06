@@ -2,7 +2,7 @@ package opcode_handlers
 
 import (
 	"github.com/daniellehrner/evmdbg/vm"
-	"math/big"
+	"github.com/holiman/uint256"
 )
 
 type ExpOpCode struct{}
@@ -19,6 +19,5 @@ func (*ExpOpCode) Execute(v *vm.DebuggerVM) error {
 		return err
 	}
 
-	result := new(big.Int).Exp(base, exponent, uint256)
-	return v.Push(result)
+	return v.Push(new(uint256.Int).Exp(base, exponent))
 }

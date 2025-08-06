@@ -1,10 +1,11 @@
 package opcode_handlers
 
 import (
-	"github.com/daniellehrner/evmdbg/vm"
-	"golang.org/x/crypto/sha3"
 	"hash"
-	"math/big"
+
+	"github.com/daniellehrner/evmdbg/vm"
+	"github.com/holiman/uint256"
+	"golang.org/x/crypto/sha3"
 )
 
 type KeccakState interface {
@@ -36,15 +37,25 @@ func (*Sha3OpCode) Execute(v *vm.DebuggerVM) error {
 	// calculate the SHA3 hash of the data
 	h := keccak256(data)
 
-	return v.Push(new(big.Int).SetBytes(h))
+	if h == nil {
+		return vm.ErrInvalidSHA3
+	}
+
+	return v.Push(new(uint256.Int).SetBytes(h))
 }
 
 func keccak256(data ...[]byte) []byte {
 	b := make([]byte, 32)
 	d := newKeccakState()
 	for _, part := range data {
-		d.Write(part)
+		_, err := d.Write(part)
+		if err != nil {
+			return nil
+		}
 	}
-	d.Read(b)
+	_, err := d.Read(b)
+	if err != nil {
+		return nil
+	}
 	return b
 }

@@ -2,26 +2,27 @@ package vm
 
 import (
 	"fmt"
-	"math/big"
+
+	"github.com/holiman/uint256"
 )
 
 type Stack struct {
-	data []*big.Int
+	data []*uint256.Int
 }
 
 func NewStack() *Stack {
-	return &Stack{data: make([]*big.Int, 0, 1024)}
+	return &Stack{data: make([]*uint256.Int, 0, 1024)}
 }
 
-func (s *Stack) Push(x *big.Int) error {
+func (s *Stack) Push(x *uint256.Int) error {
 	if len(s.data) >= 1024 {
 		return fmt.Errorf("stack overflow")
 	}
-	s.data = append(s.data, new(big.Int).Set(x))
+	s.data = append(s.data, new(uint256.Int).Set(x))
 	return nil
 }
 
-func (s *Stack) Pop() (*big.Int, error) {
+func (s *Stack) Pop() (*uint256.Int, error) {
 	n := len(s.data)
 	if n == 0 {
 		return nil, fmt.Errorf("stack underflow")
@@ -41,12 +42,12 @@ func (s *Stack) String() string {
 		if i > 0 {
 			out += " "
 		}
-		out += x.Text(16)
+		out += fmt.Sprintf("0x%x", x)
 	}
 	return out + "]"
 }
 
-func (s *Stack) Peek(n int) (*big.Int, error) {
+func (s *Stack) Peek(n int) (*uint256.Int, error) {
 	if n < 0 || n >= len(s.data) {
 		return nil, fmt.Errorf("stack underflow on peek(%d): size=%d", n, len(s.data))
 	}

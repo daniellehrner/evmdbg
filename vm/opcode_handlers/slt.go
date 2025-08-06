@@ -2,7 +2,7 @@ package opcode_handlers
 
 import (
 	"github.com/daniellehrner/evmdbg/vm"
-	"math/big"
+	"github.com/holiman/uint256"
 )
 
 type SLTOpCode struct{}
@@ -19,11 +19,11 @@ func (*SLTOpCode) Execute(v *vm.DebuggerVM) error {
 		return err
 	}
 
-	// if the signed value of a is less than the signed value of b
-	if toSigned(a, uint256Half).Cmp(toSigned(b, uint256Half)) < 0 {
-		return v.Push(big.NewInt(1))
+	// Check if a < b when interpreted as signed 256-bit integers
+	if a.Slt(b) {
+		return v.Push(uint256.NewInt(1))
 	}
 
 	// If a is not less than b, push 0 onto the stack
-	return v.Push(big.NewInt(0))
+	return v.Push(new(uint256.Int).Clear())
 }

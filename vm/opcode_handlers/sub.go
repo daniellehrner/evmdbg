@@ -2,7 +2,7 @@ package opcode_handlers
 
 import (
 	"github.com/daniellehrner/evmdbg/vm"
-	"math/big"
+	"github.com/holiman/uint256"
 )
 
 type SubOpCode struct{}
@@ -20,5 +20,5 @@ func (*SubOpCode) Execute(v *vm.DebuggerVM) error {
 	}
 
 	// Perform the subtraction
-	return v.Push(new(big.Int).Sub(a, b))
+	return v.Push(new(uint256.Int).Sub(a, b))
 }

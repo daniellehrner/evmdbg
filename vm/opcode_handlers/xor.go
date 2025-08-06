@@ -2,7 +2,7 @@ package opcode_handlers
 
 import (
 	"github.com/daniellehrner/evmdbg/vm"
-	"math/big"
+	"github.com/holiman/uint256"
 )
 
 type XorOpCode struct{}
@@ -20,5 +20,5 @@ func (*XorOpCode) Execute(v *vm.DebuggerVM) error {
 	}
 
 	// Perform the bitwise XOR operation
-	return v.Push(new(big.Int).Xor(a, b))
+	return v.Push(new(uint256.Int).Xor(a, b))
 }

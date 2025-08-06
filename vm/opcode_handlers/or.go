@@ -2,7 +2,7 @@ package opcode_handlers
 
 import (
 	"github.com/daniellehrner/evmdbg/vm"
-	"math/big"
+	"github.com/holiman/uint256"
 )
 
 type OrOpCode struct{}
@@ -20,5 +20,5 @@ func (*OrOpCode) Execute(v *vm.DebuggerVM) error {
 	}
 
 	// Perform the bitwise OR operation.
-	return v.Push(new(big.Int).Or(a, b))
+	return v.Push(new(uint256.Int).Or(a, b))
 }

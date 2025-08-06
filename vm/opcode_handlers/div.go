@@ -2,7 +2,7 @@ package opcode_handlers
 
 import (
 	"github.com/daniellehrner/evmdbg/vm"
-	"math/big"
+	"github.com/holiman/uint256"
 )
 
 type DivOpCode struct{}
@@ -19,11 +19,6 @@ func (*DivOpCode) Execute(v *vm.DebuggerVM) error {
 		return err
 	}
 
-	// If the divisor is zero, push zero onto the stack.
-	if b.Sign() == 0 {
-		return v.Push(new(big.Int)) // EVM: push 0 on divide by zero
-	}
-
 	// Perform the division and push the result back onto the stack.
-	return v.Push(new(big.Int).Div(a, b))
+	return v.Push(new(uint256.Int).Div(a, b))
 }

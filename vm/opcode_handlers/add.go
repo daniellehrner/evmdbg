@@ -2,7 +2,8 @@ package opcode_handlers
 
 import (
 	"github.com/daniellehrner/evmdbg/vm"
-	"math/big"
+
+	"github.com/holiman/uint256"
 )
 
 type AddOpCode struct{}
@@ -19,6 +20,5 @@ func (*AddOpCode) Execute(v *vm.DebuggerVM) error {
 		return err
 	}
 
-	// Perform the addition and push the result back onto the stack.
-	return v.Push(new(big.Int).Add(a, b))
+	return v.Push(new(uint256.Int).Add(a, b))
 }

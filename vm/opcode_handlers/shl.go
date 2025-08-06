@@ -2,7 +2,7 @@ package opcode_handlers
 
 import (
 	"github.com/daniellehrner/evmdbg/vm"
-	"math/big"
+	"github.com/holiman/uint256"
 )
 
 type ShlOpCode struct{}
@@ -19,22 +19,15 @@ func (*ShlOpCode) Execute(v *vm.DebuggerVM) error {
 		return err
 	}
 
-	// if the shift is greater than 256 bits, the result is zero
-	if shift.BitLen() > 256 {
-		return v.Push(new(big.Int)) // result is zero
+	// Get shift amount as uint64, handling overflow
+	shiftAmount, overflow := shift.Uint64WithOverflow()
+	if overflow || shiftAmount >= 256 {
+		// Handle edge case for large shifts
+		// For SHL: always return 0 when shift >= 256
+		return v.Push(new(uint256.Int).Clear())
 	}
 
-	// EVM word size is 256 bits: apply shift left operation
-	n := shift.Uint64()
-	if n >= 256 {
-		return v.Push(new(big.Int)) // shift too far, zero
-	}
-
-	// Perform the left shift operation
-	res := new(big.Int).Lsh(value, uint(n))
-
-	// mask to 256 bits
-	res.And(res, uint256Mask)
-
-	return v.Push(res)
+	// Convert to uint for use with Lsh
+	result := new(uint256.Int).Lsh(value, uint(shiftAmount))
+	return v.Push(result)
 }

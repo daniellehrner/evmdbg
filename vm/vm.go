@@ -1,8 +1,15 @@
 package vm
 
 import (
+	"errors"
 	"fmt"
-	"math/big"
+
+	"github.com/holiman/uint256"
+)
+
+// Errors
+var (
+	ErrInvalidSHA3 = errors.New("invalid SHA3 hash calculation")
 )
 
 type Handler interface {
@@ -15,7 +22,7 @@ type DebuggerVM struct {
 	PC      uint64
 	Stack   *Stack
 	Memory  *Memory
-	Storage map[string]*big.Int
+	Storage map[string]*uint256.Int
 	Stopped bool
 
 	ReturnValue []byte
@@ -37,12 +44,12 @@ type ExecutionContext struct {
 	Caller  [20]byte
 	Address [20]byte
 	Origin  [20]byte
-	Value   *big.Int
+	Value   *uint256.Int
 
 	CallData []byte
-	GasPrice *big.Int
+	GasPrice *uint256.Int
 	Gas      uint64
-	Balance  *big.Int
+	Balance  *uint256.Int
 
 	Block *BlockContext
 }
@@ -51,9 +58,9 @@ type BlockContext struct {
 	Coinbase   [20]byte
 	Timestamp  uint64
 	Number     uint64
-	Difficulty *big.Int
+	Difficulty *uint256.Int
 	GasLimit   uint64
-	ChainID    *big.Int
+	ChainID    *uint256.Int
 }
 
 type CodeMetadata struct {
@@ -137,7 +144,7 @@ func (vm *DebuggerVM) RequireStack(n int) error {
 	return nil
 }
 
-func (vm *DebuggerVM) Pop2() (*big.Int, *big.Int, error) {
+func (vm *DebuggerVM) Pop2() (*uint256.Int, *uint256.Int, error) {
 	a, err := vm.Stack.Pop()
 	if err != nil {
 		return nil, nil, err
@@ -149,7 +156,7 @@ func (vm *DebuggerVM) Pop2() (*big.Int, *big.Int, error) {
 	return a, b, nil
 }
 
-func (vm *DebuggerVM) Pop3() (*big.Int, *big.Int, *big.Int, error) {
+func (vm *DebuggerVM) Pop3() (*uint256.Int, *uint256.Int, *uint256.Int, error) {
 	a, err := vm.Stack.Pop()
 	if err != nil {
 		return nil, nil, nil, err
@@ -166,10 +173,10 @@ func (vm *DebuggerVM) Pop3() (*big.Int, *big.Int, *big.Int, error) {
 }
 
 func (vm *DebuggerVM) PushUint64(u uint64) error {
-	return vm.Stack.Push(new(big.Int).SetUint64(u))
+	return vm.Stack.Push(new(uint256.Int).SetUint64(u))
 }
 
-func (vm *DebuggerVM) Push(x *big.Int) error {
+func (vm *DebuggerVM) Push(x *uint256.Int) error {
 	err := vm.Stack.Push(x)
 	if err != nil {
 		return err
@@ -178,22 +185,22 @@ func (vm *DebuggerVM) Push(x *big.Int) error {
 	return nil
 }
 
-func (vm *DebuggerVM) ReadStorage(slot *big.Int) *big.Int {
+func (vm *DebuggerVM) ReadStorage(slot *uint256.Int) *uint256.Int {
 	key := fmt.Sprintf("%064x", slot) // 32-byte hex string
 	val := vm.Storage[key]
 	if val == nil {
-		return new(big.Int) // default zero
+		return new(uint256.Int) // default zero
 	}
-	return new(big.Int).Set(val)
+	return new(uint256.Int).Set(val)
 }
 
-func (vm *DebuggerVM) WriteStorage(slot *big.Int, value *big.Int) {
+func (vm *DebuggerVM) WriteStorage(slot *uint256.Int, value *uint256.Int) {
 	key := fmt.Sprintf("%064x", slot)
-	vm.Storage[key] = new(big.Int).Set(value)
+	vm.Storage[key] = new(uint256.Int).Set(value)
 }
 
 func (vm *DebuggerVM) PushBytes(data []byte) error {
-	bi := new(big.Int).SetBytes(data)
+	bi := new(uint256.Int).SetBytes(data)
 	return vm.Push(bi)
 }
 
@@ -213,6 +220,13 @@ func (vm *DebuggerVM) IsValidPC(pc uint64) bool {
 func (vm *DebuggerVM) IsJumpDest(pc uint64) bool {
 	_, ok := vm.CodeMetadata.JumpDests[pc]
 	return ok
+}
+
+func (vm *DebuggerVM) RequireContext() error {
+	if vm.Context == nil {
+		return fmt.Errorf("execution context not set")
+	}
+	return nil
 }
 
 func scanCodeMetadata(code []byte) *CodeMetadata {

@@ -2,7 +2,7 @@ package opcode_handlers
 
 import (
 	"github.com/daniellehrner/evmdbg/vm"
-	"math/big"
+	"github.com/holiman/uint256"
 )
 
 type SGTOpCode struct{}
@@ -19,11 +19,9 @@ func (*SGTOpCode) Execute(v *vm.DebuggerVM) error {
 		return err
 	}
 
-	// Define the half of the uint256 value for signed comparison
-	if toSigned(a, uint256Half).Cmp(toSigned(b, uint256Half)) > 0 {
-		return v.Push(big.NewInt(1))
+	if a.Sgt(b) {
+		return v.Push(uint256.NewInt(1))
 	}
 
-	// If a is not greater than b, push 0 onto the stack
-	return v.Push(big.NewInt(0))
+	return v.Push(uint256.NewInt(0))
 }

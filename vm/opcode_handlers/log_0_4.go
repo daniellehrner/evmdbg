@@ -1,6 +1,8 @@
 package opcode_handlers
 
 import (
+	"fmt"
+
 	"github.com/daniellehrner/evmdbg/vm"
 )
 
@@ -9,6 +11,11 @@ type LogNOpCode struct {
 }
 
 func (op *LogNOpCode) Execute(v *vm.DebuggerVM) error {
+	err := v.RequireContext()
+	if err != nil {
+		return fmt.Errorf("log op code requires the execution context to be set")
+	}
+
 	// LogN requires 2 + N values on the stack: offset, size, and N topics.
 	if err := v.RequireStack(2 + op.N); err != nil {
 		return err
@@ -21,7 +28,7 @@ func (op *LogNOpCode) Execute(v *vm.DebuggerVM) error {
 		if err != nil {
 			return err
 		}
-		topics[i] = padTo256Bytes(t.Bytes())
+		topics[i] = t.PaddedBytes(32)
 	}
 
 	size, err := v.Stack.Pop()

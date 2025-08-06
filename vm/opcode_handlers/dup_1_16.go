@@ -2,7 +2,7 @@ package opcode_handlers
 
 import (
 	"github.com/daniellehrner/evmdbg/vm"
-	"math/big"
+	"github.com/holiman/uint256"
 )
 
 type DupOpCode struct {
@@ -22,5 +22,5 @@ func (d *DupOpCode) Execute(v *vm.DebuggerVM) error {
 	}
 
 	// Push a copy of the N-th element onto the stack.
-	return v.Stack.Push(new(big.Int).Set(val))
+	return v.Stack.Push(new(uint256.Int).Set(val))
 }

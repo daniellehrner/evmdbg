@@ -2,7 +2,7 @@ package opcode_handlers
 
 import (
 	"github.com/daniellehrner/evmdbg/vm"
-	"math/big"
+	"github.com/holiman/uint256"
 )
 
 type MulOpCode struct{}
@@ -20,5 +20,5 @@ func (*MulOpCode) Execute(v *vm.DebuggerVM) error {
 	}
 
 	// Perform the multiplication operation.
-	return v.Push(new(big.Int).Mul(a, b))
+	return v.Push(new(uint256.Int).Mul(a, b))
 }
