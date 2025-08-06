@@ -41,8 +41,12 @@ const (
 	CODESIZE       = 0x38
 	CODECOPY       = 0x39
 	GASPRICE       = 0x3a
+	EXTCODESIZE    = 0x3b
+	EXTCODECOPY    = 0x3c
 	RETURNDATASIZE = 0x3d
 	RETURNDATACOPY = 0x3e
+	EXTCODEHASH    = 0x3f
+	BLOCKHASH      = 0x40
 	COINBASE       = 0x41
 	TIMESTAMP      = 0x42
 	NUMBER         = 0x43

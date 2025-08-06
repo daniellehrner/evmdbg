@@ -65,6 +65,14 @@ func (m *MockStateProvider) AccountExists(addr [20]byte) bool {
 	return exists && acc.exists
 }
 
+func (m *MockStateProvider) GetBlockHash(blockNumber uint64) [32]byte {
+	// Simple deterministic hash for testing
+	var hash [32]byte
+	hash[0] = byte(blockNumber)
+	hash[1] = byte(blockNumber >> 8)
+	return hash
+}
+
 func (m *MockStateProvider) AddAccount(addr [20]byte, code []byte, balance *uint256.Int) {
 	m.accounts[addr] = MockAccount{
 		code:    code,
