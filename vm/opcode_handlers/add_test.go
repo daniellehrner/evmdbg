@@ -18,11 +18,11 @@ func TestAdd(t *testing.T) {
 		}
 	}
 
-	if d.Stack.Len() != 1 {
-		t.Fatalf("expected 1 item on the stack, got %d", d.Stack.Len())
+	if d.Stack().Len() != 1 {
+		t.Fatalf("expected 1 item on the stack, got %d", d.Stack().Len())
 	}
 
-	top, _ := d.Stack.Pop()
+	top, _ := d.Stack().Pop()
 	if top.Cmp(uint256.NewInt(8)) != 0 {
 		t.Fatalf("expected 8 on stack, got %s", top)
 	}
@@ -46,7 +46,7 @@ func TestAddOverflow(t *testing.T) {
 		}
 	}
 
-	got, err := d.Stack.Pop()
+	got, err := d.Stack().Pop()
 	if err != nil {
 		t.Fatalf("stack error: %v", err)
 	}

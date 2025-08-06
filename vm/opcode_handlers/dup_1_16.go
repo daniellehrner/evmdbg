@@ -16,11 +16,11 @@ func (d *DupOpCode) Execute(v *vm.DebuggerVM) error {
 	}
 
 	// Peek the N-th element from the top of the stack (0-indexed).
-	val, err := v.Stack.Peek(d.N - 1)
+	val, err := v.Stack().Peek(d.N - 1)
 	if err != nil {
 		return err
 	}
 
 	// Push a copy of the N-th element onto the stack.
-	return v.Stack.Push(new(uint256.Int).Set(val))
+	return v.Stack().Push(new(uint256.Int).Set(val))
 }

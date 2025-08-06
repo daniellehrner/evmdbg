@@ -22,7 +22,7 @@ func TestNotBasic(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := new(uint256.Int).SetAllOne()
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -46,7 +46,7 @@ func TestNotAllOnes(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0, got %s", result)
 	}
@@ -75,7 +75,7 @@ func TestNotPattern(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := new(uint256.Int).SetBytes([]byte{
 		0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55,
 		0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55,
@@ -103,7 +103,7 @@ func TestNotSingleByte(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := new(uint256.Int).SetBytes([]byte{
 		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
 		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,

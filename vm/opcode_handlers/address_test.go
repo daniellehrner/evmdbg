@@ -21,7 +21,7 @@ func TestAddress(t *testing.T) {
 		}
 	}
 
-	got, err := d.Stack.Pop()
+	got, err := d.Stack().Pop()
 	if err != nil {
 		t.Fatalf("stack error: %v", err)
 	}

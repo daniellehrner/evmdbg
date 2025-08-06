@@ -21,7 +21,7 @@ func TestMsizeInitial(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0 for initial memory size, got %s", result)
 	}
@@ -44,7 +44,7 @@ func TestMsizeAfterMstore(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(32) // MSTORE at offset 0 allocates 32 bytes
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -68,10 +68,10 @@ func TestMsizeAfterMload(t *testing.T) {
 	}
 
 	// Pop MSIZE first (it was executed last, so it's on top)
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 
 	// The loaded value is still on the stack
-	loadedValue, _ := d.Stack.Pop()
+	loadedValue, _ := d.Stack().Pop()
 	_ = loadedValue                // Should be 0
 	expected := uint256.NewInt(32) // MLOAD at offset 0 allocates 32 bytes
 	if result.Cmp(expected) != 0 {
@@ -96,7 +96,7 @@ func TestMsizeHighOffset(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	// MSTORE at offset 256 needs to store 32 bytes, so memory size = 256 + 32 = 288
 	expected := uint256.NewInt(288)
 	if result.Cmp(expected) != 0 {
@@ -132,26 +132,26 @@ func TestMsizeProgressive(t *testing.T) {
 	}
 
 	// Stack should have: [0, 32, 96] (most recent on top)
-	if d.Stack.Len() != 3 {
-		t.Fatalf("expected 3 items on stack, got %d", d.Stack.Len())
+	if d.Stack().Len() != 3 {
+		t.Fatalf("expected 3 items on stack, got %d", d.Stack().Len())
 	}
 
 	// Check final size (96)
-	result3, _ := d.Stack.Pop()
+	result3, _ := d.Stack().Pop()
 	expected3 := uint256.NewInt(96)
 	if result3.Cmp(expected3) != 0 {
 		t.Fatalf("expected final size %s, got %s", expected3, result3)
 	}
 
 	// Check middle size (32)
-	result2, _ := d.Stack.Pop()
+	result2, _ := d.Stack().Pop()
 	expected2 := uint256.NewInt(32)
 	if result2.Cmp(expected2) != 0 {
 		t.Fatalf("expected middle size %s, got %s", expected2, result2)
 	}
 
 	// Check initial size (0)
-	result1, _ := d.Stack.Pop()
+	result1, _ := d.Stack().Pop()
 	if !result1.IsZero() {
 		t.Fatalf("expected initial size 0, got %s", result1)
 	}
@@ -174,7 +174,7 @@ func TestMsizeUnalignedAccess(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	// MSTORE at offset 5 writes 32 bytes (offsets 5-36), memory size = word-aligned(37) = 64
 	expected := uint256.NewInt(64)
 	if result.Cmp(expected) != 0 {
@@ -214,7 +214,7 @@ func TestMsizeAfterMultipleOperations(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	// Highest access was MSTORE at offset 64, requiring 32 bytes
 	// So memory size = 64 + 32 = 96
 	expected := uint256.NewInt(96)

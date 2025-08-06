@@ -23,7 +23,7 @@ func TestSha3Empty(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 
 	// Expected: Keccak256 of empty string
 	// 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470
@@ -59,7 +59,7 @@ func TestSha3SingleByte(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 
 	// Expected: Keccak256 of byte 0x42
 	// This is a known test vector - we expect a specific hash
@@ -94,7 +94,7 @@ func TestSha3MultipleBytes(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 
 	// Should produce a valid hash (non-zero)
 	if result.IsZero() {
@@ -132,7 +132,7 @@ func TestSha3Full32Bytes(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 
 	// Should produce a valid hash
 	if result.IsZero() {
@@ -160,7 +160,7 @@ func TestSha3ZeroData(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 
 	// SHA3 of 32 zero bytes should produce a specific known hash
 	if result.IsZero() {
@@ -194,7 +194,7 @@ func TestSha3LargeData(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 
 	// Should produce a valid hash
 	if result.IsZero() {
@@ -223,7 +223,7 @@ func TestSha3MemoryOffset(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 
 	// Should produce a valid hash
 	if result.IsZero() {
@@ -253,7 +253,7 @@ func TestSha3Deterministic(t *testing.T) {
 		}
 	}
 
-	result1, _ := d1.Stack.Pop()
+	result1, _ := d1.Stack().Pop()
 
 	// Second execution with same data
 	code2 := []byte{
@@ -274,7 +274,7 @@ func TestSha3Deterministic(t *testing.T) {
 		}
 	}
 
-	result2, _ := d2.Stack.Pop()
+	result2, _ := d2.Stack().Pop()
 
 	// Results should be identical
 	if result1.Cmp(result2) != 0 {

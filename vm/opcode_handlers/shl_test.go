@@ -23,7 +23,7 @@ func TestShlBasic(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(10)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -46,7 +46,7 @@ func TestShlPowerOfTwo(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(256)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -69,7 +69,7 @@ func TestShlZeroShift(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(42)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -92,7 +92,7 @@ func TestShlZeroValue(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0, got %s", result)
 	}
@@ -114,7 +114,7 @@ func TestShlLargeShift(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0 for large shift, got %s", result)
 	}
@@ -136,7 +136,7 @@ func TestShlOverflowShift(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0 for overflow shift, got %s", result)
 	}
@@ -160,7 +160,7 @@ func TestShlMaxValue(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	// Max value << 1 should wrap around due to 256-bit overflow
 	// 0xFFFF...FFFF << 1 = 0xFFFF...FFFE (in 256-bit arithmetic)
 	maxForCalc := new(uint256.Int).SetAllOne()
@@ -186,7 +186,7 @@ func TestShlDoubling(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(30) // 15 * 2 = 30
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -209,7 +209,7 @@ func TestShlBitPattern(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(0x10)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -232,7 +232,7 @@ func TestShlMultipleShifts(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(24)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -257,7 +257,7 @@ func TestShlLargeValue(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	// 2^100 << 5 = 2^105
 	expected := new(uint256.Int).Lsh(uint256.NewInt(1), 105)
 	if result.Cmp(expected) != 0 {
@@ -284,7 +284,7 @@ func TestShlOverflow(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	// 2^255 << 1 = 2^256, which overflows to 0 in 256-bit arithmetic
 	if !result.IsZero() {
 		t.Fatalf("expected 0 for overflow, got %s", result)
@@ -307,7 +307,7 @@ func TestShlEdgeCase255(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	// 1 << 255 = 2^255 (high bit set)
 	expected := new(uint256.Int).Lsh(uint256.NewInt(1), 255)
 	if result.Cmp(expected) != 0 {
@@ -334,7 +334,7 @@ func TestShlVsSar(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(32) // 8 * 4 = 32
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("SHL: expected %s, got %s", expected, result)

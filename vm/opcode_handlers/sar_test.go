@@ -23,11 +23,11 @@ func TestSarBasic(t *testing.T) {
 		}
 	}
 
-	if d.Stack.Len() != 1 {
-		t.Fatalf("expected 1 item on the stack, got %d", d.Stack.Len())
+	if d.Stack().Len() != 1 {
+		t.Fatalf("expected 1 item on the stack, got %d", d.Stack().Len())
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(4)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -53,7 +53,7 @@ func TestSarNegative(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := new(uint256.Int).Sub(new(uint256.Int), uint256.NewInt(4)) // -4
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -76,7 +76,7 @@ func TestSarZero(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0, got %s", result)
 	}
@@ -98,7 +98,7 @@ func TestSarLargeShift(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0, got %s", result)
 	}
@@ -122,7 +122,7 @@ func TestSarLargeShiftNegative(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := new(uint256.Int).SetAllOne() // -1 (all bits set)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -148,7 +148,7 @@ func TestSarShiftBy31(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(1) // 2^31 >> 31 = 1
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -173,7 +173,7 @@ func TestSarMostSignificantBit(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 
 	// MSB should still be set after right shift
 	if result.Sign() >= 0 {
@@ -199,7 +199,7 @@ func TestSarOverflowShift(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0 for positive value with overflow shift, got %s", result)
 	}

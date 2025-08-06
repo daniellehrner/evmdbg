@@ -21,7 +21,7 @@ func (*CallDataLoadOpCode) Execute(v *vm.DebuggerVM) error {
 	}
 
 	// Pop the offset from the stack.
-	offset, err := v.Stack.Pop()
+	offset, err := v.Stack().Pop()
 	if err != nil {
 		return err
 	}

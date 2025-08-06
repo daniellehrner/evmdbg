@@ -27,7 +27,7 @@ func (*JumpiOpCode) Execute(v *vm.DebuggerVM) error {
 		if !v.IsJumpDest(pc) {
 			return fmt.Errorf("invalid jumpi target: 0x%x", pc)
 		}
-		v.PC = pc
+		v.SetPC(pc)
 	}
 	return nil
 }

@@ -25,7 +25,7 @@ func TestMstoreBasic(t *testing.T) {
 
 	// Check that memory was written correctly
 	// MSTORE stores 32 bytes, with the value right-aligned
-	data := d.Memory.Read(0, 32)
+	data := d.Memory().Read(0, 32)
 
 	// Expected: 32 bytes with 0x1234 at the end (big-endian)
 	expected := make([]byte, 32)
@@ -56,7 +56,7 @@ func TestMstoreOffset(t *testing.T) {
 	}
 
 	// Check memory at offset 32
-	data := d.Memory.Read(32, 32)
+	data := d.Memory().Read(32, 32)
 
 	// Expected: 32 bytes with 0xABCD at the end
 	expected := make([]byte, 32)
@@ -87,7 +87,7 @@ func TestMstoreZero(t *testing.T) {
 	}
 
 	// Check that 32 bytes of zeros were written
-	data := d.Memory.Read(0, 32)
+	data := d.Memory().Read(0, 32)
 	for i := 0; i < 32; i++ {
 		if data[i] != 0 {
 			t.Fatalf("memory byte %d: expected 0, got 0x%02x", i, data[i])
@@ -119,7 +119,7 @@ func TestMstoreLargeValue(t *testing.T) {
 	}
 
 	// Check that the full value was stored correctly
-	data := d.Memory.Read(0, 32)
+	data := d.Memory().Read(0, 32)
 	expected := largeValue.Bytes32()
 
 	for i := 0; i < 32; i++ {
@@ -150,7 +150,7 @@ func TestMstoreOverlapping(t *testing.T) {
 	}
 
 	// Check non-overlapping part of first storage (bytes 0-15)
-	data1 := d.Memory.Read(0, 16)
+	data1 := d.Memory().Read(0, 16)
 	// Should be all zeros (high-order bytes of 0x1111)
 	for i, b := range data1 {
 		if b != 0 {
@@ -159,14 +159,14 @@ func TestMstoreOverlapping(t *testing.T) {
 	}
 
 	// Check second storage (bytes 16-47)
-	data2 := d.Memory.Read(16, 32)
+	data2 := d.Memory().Read(16, 32)
 	// Should have 0x2222 at the end (bytes 30-31 of this 32-byte chunk, which are bytes 46-47 globally)
 	if data2[30] != 0x22 || data2[31] != 0x22 {
 		t.Fatalf("second value not stored correctly: got 0x%02x%02x", data2[30], data2[31])
 	}
 
 	// Verify overlapping behavior: bytes 16-31 should now be zeros (overwritten by second MSTORE)
-	overlapData := d.Memory.Read(16, 16)
+	overlapData := d.Memory().Read(16, 16)
 	for i, b := range overlapData {
 		if b != 0 {
 			t.Fatalf("overlapping area not correctly overwritten at byte %d: got 0x%02x", 16+i, b)
@@ -192,7 +192,7 @@ func TestMstoreMemoryExpansion(t *testing.T) {
 
 	// Memory should have expanded to accommodate offset 256 + 32 bytes
 	// Check that the value was stored at the correct location
-	data := d.Memory.Read(256, 32)
+	data := d.Memory().Read(256, 32)
 
 	// Expected: 32 bytes with 0xFF at the end
 	if data[31] != 0xFF {

@@ -23,7 +23,7 @@ func TestGtTrue(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(1)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -46,7 +46,7 @@ func TestGtFalse(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0, got %s", result)
 	}
@@ -68,7 +68,7 @@ func TestGtEqual(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0, got %s", result)
 	}
@@ -94,7 +94,7 @@ func TestGtMaxValue(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(1)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)

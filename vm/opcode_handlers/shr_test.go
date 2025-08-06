@@ -23,11 +23,11 @@ func TestShrBasic(t *testing.T) {
 		}
 	}
 
-	if d.Stack.Len() != 1 {
-		t.Fatalf("expected 1 item on the stack, got %d", d.Stack.Len())
+	if d.Stack().Len() != 1 {
+		t.Fatalf("expected 1 item on the stack, got %d", d.Stack().Len())
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(4)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -50,7 +50,7 @@ func TestShrLargeValue(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(0x0F) // 255 >> 4 = 15
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -76,7 +76,7 @@ func TestShrNegativeValue(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 
 	// Expected: 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 	// This is the largest positive 256-bit number (MSB = 0)
@@ -102,7 +102,7 @@ func TestShrZero(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0, got %s", result)
 	}
@@ -124,7 +124,7 @@ func TestShrLargeShift(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0, got %s", result)
 	}
@@ -148,7 +148,7 @@ func TestShrOverflowShift(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0 for overflow shift, got %s", result)
 	}
@@ -172,7 +172,7 @@ func TestShrShiftBy255(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(1)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -199,7 +199,7 @@ func TestShrVsSar(t *testing.T) {
 		}
 	}
 
-	shrResult, _ := d.Stack.Pop()
+	shrResult, _ := d.Stack().Pop()
 
 	// SHR result should be a large positive number (MSB = 0)
 	if shrResult.Sign() < 0 {

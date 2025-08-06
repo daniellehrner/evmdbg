@@ -14,7 +14,7 @@ func (*NotOpCode) Execute(v *vm.DebuggerVM) error {
 	}
 
 	// Pop the top item from the stack.
-	x, err := v.Stack.Pop()
+	x, err := v.Stack().Pop()
 	if err != nil {
 		return err
 	}

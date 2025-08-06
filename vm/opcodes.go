@@ -130,6 +130,10 @@ const (
 	LOG2           = 0xa2
 	LOG3           = 0xa3
 	LOG4           = 0xa4
+	CALL           = 0xf1
+	CALLCODE       = 0xf2
 	RETURN         = 0xf3
+	DELEGATECALL   = 0xf4
+	STATICCALL     = 0xfa
 	REVERT         = 0xfd
 )

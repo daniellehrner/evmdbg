@@ -28,11 +28,11 @@ func TestSloadBasic(t *testing.T) {
 	}
 
 	// Should have loaded the stored value
-	if d.Stack.Len() != 1 {
-		t.Fatalf("expected 1 item on stack, got %d", d.Stack.Len())
+	if d.Stack().Len() != 1 {
+		t.Fatalf("expected 1 item on stack, got %d", d.Stack().Len())
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(0x42)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -55,7 +55,7 @@ func TestSloadUninitialized(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0 from uninitialized storage, got %s", result)
 	}
@@ -81,7 +81,7 @@ func TestSloadZeroValue(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0, got %s", result)
 	}
@@ -112,7 +112,7 @@ func TestSloadLargeKey(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if result.Cmp(largeValue) != 0 {
 		t.Fatalf("expected %s, got %s", largeValue, result)
 	}
@@ -145,7 +145,7 @@ func TestSloadLargeValue(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if result.Cmp(largeValue) != 0 {
 		t.Fatalf("expected %s, got %s", largeValue, result)
 	}
@@ -183,7 +183,7 @@ func TestSloadMultipleKeys(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(0xBB) // Should load value from key 20
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -217,7 +217,7 @@ func TestSloadAfterOverwrite(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(0x22) // Should be the overwritten value
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -244,7 +244,7 @@ func TestSloadZeroKey(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(0x88)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -288,24 +288,24 @@ func TestSloadSequential(t *testing.T) {
 	}
 
 	// Stack should have [0x33, 0x22, 0x11] (most recent on top)
-	if d.Stack.Len() != 3 {
-		t.Fatalf("expected 3 items on stack, got %d", d.Stack.Len())
+	if d.Stack().Len() != 3 {
+		t.Fatalf("expected 3 items on stack, got %d", d.Stack().Len())
 	}
 
 	// Check in LIFO order
-	result1, _ := d.Stack.Pop() // 0x11
+	result1, _ := d.Stack().Pop() // 0x11
 	expected1 := uint256.NewInt(0x11)
 	if result1.Cmp(expected1) != 0 {
 		t.Fatalf("expected %s, got %s", expected1, result1)
 	}
 
-	result2, _ := d.Stack.Pop() // 0x22
+	result2, _ := d.Stack().Pop() // 0x22
 	expected2 := uint256.NewInt(0x22)
 	if result2.Cmp(expected2) != 0 {
 		t.Fatalf("expected %s, got %s", expected2, result2)
 	}
 
-	result3, _ := d.Stack.Pop() // 0x33
+	result3, _ := d.Stack().Pop() // 0x33
 	expected3 := uint256.NewInt(0x33)
 	if result3.Cmp(expected3) != 0 {
 		t.Fatalf("expected %s, got %s", expected3, result3)

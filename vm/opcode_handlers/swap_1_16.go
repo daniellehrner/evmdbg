@@ -13,5 +13,5 @@ func (s *SwapOpCode) Execute(v *vm.DebuggerVM) error {
 	}
 
 	// Swap item at position N with the top of the stack
-	return v.Stack.Swap(s.N)
+	return v.Stack().Swap(s.N)
 }

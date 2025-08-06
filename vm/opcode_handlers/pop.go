@@ -11,7 +11,7 @@ func (*PopOpCode) Execute(v *vm.DebuggerVM) error {
 	}
 
 	// Pop the top item from the stack.
-	_, err := v.Stack.Pop()
+	_, err := v.Stack().Pop()
 
 	return err
 }

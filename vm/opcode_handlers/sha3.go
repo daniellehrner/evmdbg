@@ -32,7 +32,7 @@ func (*Sha3OpCode) Execute(v *vm.DebuggerVM) error {
 	}
 
 	// Read the specified memory range and compute the SHA3 hash.
-	data := v.Memory.Read(int(offset.Uint64()), int(size.Uint64()))
+	data := v.Memory().Read(int(offset.Uint64()), int(size.Uint64()))
 
 	// calculate the SHA3 hash of the data
 	h := keccak256(data)

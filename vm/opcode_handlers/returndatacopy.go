@@ -19,17 +19,18 @@ func (*ReturnDataCopyOpCode) Execute(v *vm.DebuggerVM) error {
 		return err
 	}
 
+	returnData := v.ReturnData()
 	start := offset.Uint64()
 	end := start + size.Uint64()
 
-	// Ensure the start and end indices are within bounds of the return value.
-	if end > uint64(len(v.ReturnValue)) {
-		return fmt.Errorf("RETURNDATACOPY out of bounds: %d > %d", end, len(v.ReturnValue))
+	// Ensure the start and end indices are within bounds of the return data.
+	if end > uint64(len(returnData)) {
+		return fmt.Errorf("RETURNDATACOPY out of bounds: %d > %d", end, len(returnData))
 	}
 
-	// Write the specified portion of the return value to memory.
-	data := v.ReturnValue[start:end]
-	v.Memory.Write(int(memOffset.Uint64()), data)
+	// Write the specified portion of the return data to memory.
+	data := returnData[start:end]
+	v.Memory().Write(int(memOffset.Uint64()), data)
 
 	return nil
 }

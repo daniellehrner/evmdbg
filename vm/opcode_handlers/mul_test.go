@@ -23,7 +23,7 @@ func TestMulBasic(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(42)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -46,7 +46,7 @@ func TestMulZero(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0, got %s", result)
 	}
@@ -68,7 +68,7 @@ func TestMulOne(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(42)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -96,7 +96,7 @@ func TestMulOverflow(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	// 2^255 * 2 = 2^256 = 0 (mod 2^256)
 	if !result.IsZero() {
 		t.Fatalf("expected 0 (overflow), got %s", result)
@@ -124,7 +124,7 @@ func TestMulLargeNumbers(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := new(uint256.Int).Lsh(uint256.NewInt(1), 192) // 2^192
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -150,7 +150,7 @@ func TestMulMaxValues(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	// 0xFFFF...FFFF * 0xFFFF...FFFF = 1 (due to modular arithmetic)
 	expected := uint256.NewInt(1)
 	if result.Cmp(expected) != 0 {

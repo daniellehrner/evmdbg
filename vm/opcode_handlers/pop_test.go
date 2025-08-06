@@ -22,8 +22,8 @@ func TestPopBasic(t *testing.T) {
 		}
 	}
 
-	if d.Stack.Len() != 0 {
-		t.Fatalf("expected empty stack, got %d items", d.Stack.Len())
+	if d.Stack().Len() != 0 {
+		t.Fatalf("expected empty stack, got %d items", d.Stack().Len())
 	}
 }
 
@@ -43,11 +43,11 @@ func TestPopMultiple(t *testing.T) {
 		}
 	}
 
-	if d.Stack.Len() != 1 {
-		t.Fatalf("expected 1 item on stack, got %d", d.Stack.Len())
+	if d.Stack().Len() != 1 {
+		t.Fatalf("expected 1 item on stack, got %d", d.Stack().Len())
 	}
 
-	remaining, _ := d.Stack.Pop()
+	remaining, _ := d.Stack().Pop()
 	expected := uint256.NewInt(42)
 	if remaining.Cmp(expected) != 0 {
 		t.Fatalf("expected %s to remain, got %s", expected, remaining)
@@ -72,11 +72,11 @@ func TestPopOrder(t *testing.T) {
 		}
 	}
 
-	if d.Stack.Len() != 1 {
-		t.Fatalf("expected 1 item on stack, got %d", d.Stack.Len())
+	if d.Stack().Len() != 1 {
+		t.Fatalf("expected 1 item on stack, got %d", d.Stack().Len())
 	}
 
-	remaining, _ := d.Stack.Pop()
+	remaining, _ := d.Stack().Pop()
 	expected := uint256.NewInt(0x11) // A should remain
 	if remaining.Cmp(expected) != 0 {
 		t.Fatalf("expected %s to remain, got %s", expected, remaining)
@@ -100,8 +100,8 @@ func TestPopLargeValue(t *testing.T) {
 		}
 	}
 
-	if d.Stack.Len() != 0 {
-		t.Fatalf("expected empty stack, got %d items", d.Stack.Len())
+	if d.Stack().Len() != 0 {
+		t.Fatalf("expected empty stack, got %d items", d.Stack().Len())
 	}
 }
 

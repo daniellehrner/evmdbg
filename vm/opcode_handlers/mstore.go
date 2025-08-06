@@ -17,7 +17,7 @@ func (*MStoreOpCode) Execute(v *vm.DebuggerVM) error {
 	}
 
 	// Write the value to memory at the given address.
-	v.Memory.WriteWord(addr.Uint64(), val)
+	v.Memory().WriteWord(addr.Uint64(), val)
 
 	return nil
 }

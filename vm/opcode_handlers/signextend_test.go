@@ -24,7 +24,7 @@ func TestSignExtendByte0Negative(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := new(uint256.Int).SetAllOne() // All bits set (-1)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -48,7 +48,7 @@ func TestSignExtendByte0Positive(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(0x7F)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -72,7 +72,7 @@ func TestSignExtendByte1Negative(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 
 	// Expected: 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF80FF
 	// Sign bit from byte 1 (0x80) extends to fill all upper bytes
@@ -104,7 +104,7 @@ func TestSignExtendByte1Positive(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(0x7FFF)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -135,7 +135,7 @@ func TestSignExtendByte31NoChange(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if result.Cmp(testValue) != 0 {
 		t.Fatalf("expected %s, got %s", testValue, result)
 	}
@@ -159,7 +159,7 @@ func TestSignExtendLargeByteNum(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if result.Cmp(testValue) != 0 {
 		t.Fatalf("expected %s, got %s", testValue, result)
 	}
@@ -181,7 +181,7 @@ func TestSignExtendZeroValue(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0, got %s", result)
 	}
@@ -210,7 +210,7 @@ func TestSignExtendByte15(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 
 	// Check that bytes 16-31 are all 0xFF (sign extended)
 	// and bytes 0-15 contain original data
@@ -252,7 +252,7 @@ func TestSignExtendBoundaryValues(t *testing.T) {
 		}
 	}
 
-	result1, _ := d1.Stack.Pop()
+	result1, _ := d1.Stack().Pop()
 	expected1 := new(uint256.Int).SetAllOne()                                                                      // Should be -1 (all 1s)
 	expected1 = expected1.And(expected1, new(uint256.Int).Sub(new(uint256.Int).SetAllOne(), uint256.NewInt(0x7F))) // Clear lower 7 bits, keep 0x80
 	expected1 = expected1.Or(expected1, uint256.NewInt(0x80))
@@ -284,7 +284,7 @@ func TestSignExtendBoundaryValues(t *testing.T) {
 		}
 	}
 
-	result2, _ := d2.Stack.Pop()
+	result2, _ := d2.Stack().Pop()
 	expected2 := uint256.NewInt(0x7F) // Should remain 0x7F
 
 	if result2.Cmp(expected2) != 0 {

@@ -30,11 +30,11 @@ func main() {
 
 		// Dump stack after each step
 		fmt.Print("Stack:")
-		if vm.Stack.Len() == 0 {
+		if vm.Stack().Len() == 0 {
 			fmt.Println(" <empty>")
 		} else {
-			for i := 0; i < vm.Stack.Len(); i++ {
-				val, _ := vm.Stack.Peek(i)
+			for i := 0; i < vm.Stack().Len(); i++ {
+				val, _ := vm.Stack().Peek(i)
 				fmt.Printf(" [%d]: 0x%x", i, val)
 			}
 			fmt.Println()
@@ -43,13 +43,13 @@ func main() {
 
 	// Inspect stack
 	fmt.Println("Final Stack:")
-	for i := 0; i < vm.Stack.Len(); i++ {
-		val, _ := vm.Stack.Peek(i)
+	for i := 0; i < vm.Stack().Len(); i++ {
+		val, _ := vm.Stack().Peek(i)
 		fmt.Printf("  [%d]: 0x%x\n", i, val)
 	}
 
 	// Inspect memory (first 32 bytes)
-	fmt.Println("Memory [0x00..0x20]:", vm.Memory.Read(0, 32))
+	fmt.Println("Memory [0x00..0x20]:", vm.Memory().Read(0, 32))
 
 	// Inspect return value
 	fmt.Println("Return value:", vm.ReturnValue)

@@ -23,7 +23,7 @@ func TestAndBasic(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(0x0F)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -46,7 +46,7 @@ func TestAndZero(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0, got %s", result)
 	}
@@ -72,7 +72,7 @@ func TestAndAllOnes(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if result.Cmp(testValue) != 0 {
 		t.Fatalf("expected %s, got %s", testValue, result)
 	}
@@ -108,7 +108,7 @@ func TestAndLargeNumbers(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := new(uint256.Int).SetBytes([]byte{
 		0xF0, 0xF0, 0xF0, 0xF0, 0x00, 0x00, 0x00, 0x00,
 		0xF0, 0xF0, 0xF0, 0xF0, 0x00, 0x00, 0x00, 0x00,

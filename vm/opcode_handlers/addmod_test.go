@@ -24,7 +24,7 @@ func TestAddMod(t *testing.T) {
 	}
 
 	expected := uint256.NewInt((4 + 3) % 5)
-	actual, _ := d.Stack.Pop()
+	actual, _ := d.Stack().Pop()
 	if actual.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, actual)
 	}

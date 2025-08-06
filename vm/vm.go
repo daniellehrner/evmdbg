@@ -9,7 +9,13 @@ import (
 
 // Errors
 var (
-	ErrInvalidSHA3 = errors.New("invalid SHA3 hash calculation")
+	ErrInvalidSHA3           = errors.New("invalid SHA3 hash calculation")
+	ErrStackUnderflow        = errors.New("stack underflow")
+	ErrStackOverflow         = errors.New("stack overflow")
+	ErrOutOfGas              = errors.New("out of gas")
+	ErrInvalidJump           = errors.New("invalid jump destination")
+	ErrCallDepthLimit        = errors.New("call depth limit exceeded")
+	ErrStaticCallStateChange = errors.New("state change operation in static call context")
 )
 
 type Handler interface {
@@ -18,10 +24,10 @@ type Handler interface {
 type HandlerGetter func(b byte) Handler
 
 type DebuggerVM struct {
-	Code    []byte
-	PC      uint64
-	Stack   *Stack
-	Memory  *Memory
+	// Frame stack for call support
+	frames []MessageFrame
+
+	// VM state
 	Storage map[string]*uint256.Int
 	Stopped bool
 
@@ -30,8 +36,11 @@ type DebuggerVM struct {
 	Logs        []LogEntry
 
 	Context       *ExecutionContext
-	CodeMetadata  *CodeMetadata
 	HandlerGetter HandlerGetter
+	StateProvider StateProvider
+
+	// Return data from last call
+	lastReturnData []byte
 }
 
 type LogEntry struct {
@@ -68,24 +77,88 @@ type CodeMetadata struct {
 	JumpDests map[uint64]struct{}
 }
 
+// CallType represents the type of call being made
+type CallType int
+
+const (
+	CallTypeCall CallType = iota
+	CallTypeCallCode
+	CallTypeDelegateCall
+	CallTypeStaticCall
+)
+
+// MessageFrame represents a single execution frame
+type MessageFrame struct {
+	Code         []byte
+	PC           uint64
+	Stack        *Stack
+	Memory       *Memory
+	ReturnData   []byte
+	Gas          uint64
+	CallType     CallType
+	IsStatic     bool
+	CodeMetadata *CodeMetadata
+}
+
+// CallContext contains information about a call
+type CallContext struct {
+	Caller   [20]byte
+	Address  [20]byte
+	Origin   [20]byte
+	Value    *uint256.Int
+	CallData []byte
+	Gas      uint64
+}
+
+// StateProvider interface for accessing blockchain state
+type StateProvider interface {
+	GetBalance(addr [20]byte) *uint256.Int
+	GetCode(addr [20]byte) []byte
+	GetStorage(addr [20]byte, key *uint256.Int) *uint256.Int
+	SetStorage(addr [20]byte, key *uint256.Int, value *uint256.Int)
+	AccountExists(addr [20]byte) bool
+}
+
 func NewDebuggerVM(code []byte, hg HandlerGetter) *DebuggerVM {
-	return &DebuggerVM{
-		Code:          code,
-		Stack:         NewStack(),
-		Memory:        NewMemory(),
-		HandlerGetter: hg,
-		CodeMetadata:  scanCodeMetadata(code),
+	stack := NewStack()
+	memory := NewMemory()
+	codeMetadata := scanCodeMetadata(code)
+
+	// Create initial frame
+	initialFrame := MessageFrame{
+		Code:         code,
+		PC:           0,
+		Stack:        stack,
+		Memory:       memory,
+		ReturnData:   nil,
+		Gas:          0, // Will be set via context
+		CallType:     CallTypeCall,
+		IsStatic:     false,
+		CodeMetadata: codeMetadata,
 	}
+
+	vm := &DebuggerVM{
+		frames:        []MessageFrame{initialFrame},
+		Storage:       make(map[string]*uint256.Int),
+		HandlerGetter: hg,
+	}
+
+	return vm
 }
 
 func (vm *DebuggerVM) Step() error {
-	if vm.Stopped || int(vm.PC) >= len(vm.Code) {
+	frame := vm.currentFrame()
+	if frame == nil {
+		return fmt.Errorf("no execution frame")
+	}
+
+	if vm.Stopped || int(frame.PC) >= len(frame.Code) {
 		vm.Stopped = true
 		return nil
 	}
 
-	op := vm.Code[vm.PC]
-	vm.PC++
+	op := frame.Code[frame.PC]
+	frame.PC++
 
 	handler := vm.HandlerGetter(op)
 	if handler == nil {
@@ -97,18 +170,23 @@ func (vm *DebuggerVM) Step() error {
 
 func (vm *DebuggerVM) RunUntil(breakpoints map[uint64]struct{}) error {
 	for {
-		if vm.Stopped || int(vm.PC) >= len(vm.Code) {
+		frame := vm.currentFrame()
+		if frame == nil {
+			return fmt.Errorf("no execution frame")
+		}
+
+		if vm.Stopped || int(frame.PC) >= len(frame.Code) {
 			vm.Stopped = true
 			return nil
 		}
 
-		if _, ok := breakpoints[vm.PC]; ok {
+		if _, ok := breakpoints[frame.PC]; ok {
 			return nil // reached a breakpoint
 		}
 
 		// Only execute at valid PC (not in PUSH immediate)
-		if _, ok := vm.CodeMetadata.ValidPC[vm.PC]; !ok {
-			return fmt.Errorf("invalid PC: 0x%x (likely inside PUSH immediate)", vm.PC)
+		if _, ok := frame.CodeMetadata.ValidPC[frame.PC]; !ok {
+			return fmt.Errorf("invalid PC: 0x%x (likely inside PUSH immediate)", frame.PC)
 		}
 
 		err := vm.Step()
@@ -119,37 +197,60 @@ func (vm *DebuggerVM) RunUntil(breakpoints map[uint64]struct{}) error {
 }
 
 func (vm *DebuggerVM) ReadCodeByte(offset uint64) (byte, error) {
-	pos := vm.PC + offset
-	if int(pos) >= len(vm.Code) {
+	frame := vm.currentFrame()
+	if frame == nil {
+		return 0, fmt.Errorf("no execution frame")
+	}
+
+	pos := frame.PC + offset
+	if int(pos) >= len(frame.Code) {
 		return 0, fmt.Errorf("code out of bounds at PC + %d", offset)
 	}
-	return vm.Code[pos], nil
+	return frame.Code[pos], nil
 }
 
 func (vm *DebuggerVM) AdvancePC(n uint64) {
-	vm.PC += n
+	frame := vm.currentFrame()
+	if frame != nil {
+		frame.PC += n
+	}
 }
 
 func (vm *DebuggerVM) ReadCodeSlice(n uint64) ([]byte, error) {
-	if vm.PC+n > uint64(len(vm.Code)) {
-		return nil, fmt.Errorf("code out of bounds: PC=%d, len=%d, need=%d", vm.PC, len(vm.Code), n)
+	frame := vm.currentFrame()
+	if frame == nil {
+		return nil, fmt.Errorf("no execution frame")
 	}
-	return vm.Code[vm.PC : vm.PC+n], nil
+
+	if frame.PC+n > uint64(len(frame.Code)) {
+		return nil, fmt.Errorf("code out of bounds: PC=%d, len=%d, need=%d", frame.PC, len(frame.Code), n)
+	}
+	return frame.Code[frame.PC : frame.PC+n], nil
 }
 
 func (vm *DebuggerVM) RequireStack(n int) error {
-	if vm.Stack.Len() < n {
-		return fmt.Errorf("stack underflow: need %d, have %d", n, vm.Stack.Len())
+	frame := vm.currentFrame()
+	if frame == nil {
+		return fmt.Errorf("no execution frame")
+	}
+
+	if frame.Stack.Len() < n {
+		return fmt.Errorf("stack underflow: need %d, have %d", n, frame.Stack.Len())
 	}
 	return nil
 }
 
 func (vm *DebuggerVM) Pop2() (*uint256.Int, *uint256.Int, error) {
-	a, err := vm.Stack.Pop()
+	frame := vm.currentFrame()
+	if frame == nil {
+		return nil, nil, fmt.Errorf("no execution frame")
+	}
+
+	a, err := frame.Stack.Pop()
 	if err != nil {
 		return nil, nil, err
 	}
-	b, err := vm.Stack.Pop()
+	b, err := frame.Stack.Pop()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -157,15 +258,20 @@ func (vm *DebuggerVM) Pop2() (*uint256.Int, *uint256.Int, error) {
 }
 
 func (vm *DebuggerVM) Pop3() (*uint256.Int, *uint256.Int, *uint256.Int, error) {
-	a, err := vm.Stack.Pop()
+	frame := vm.currentFrame()
+	if frame == nil {
+		return nil, nil, nil, fmt.Errorf("no execution frame")
+	}
+
+	a, err := frame.Stack.Pop()
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	b, err := vm.Stack.Pop()
+	b, err := frame.Stack.Pop()
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	c, err := vm.Stack.Pop()
+	c, err := frame.Stack.Pop()
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -173,16 +279,20 @@ func (vm *DebuggerVM) Pop3() (*uint256.Int, *uint256.Int, *uint256.Int, error) {
 }
 
 func (vm *DebuggerVM) PushUint64(u uint64) error {
-	return vm.Stack.Push(new(uint256.Int).SetUint64(u))
+	frame := vm.currentFrame()
+	if frame == nil {
+		return fmt.Errorf("no execution frame")
+	}
+	return frame.Stack.Push(new(uint256.Int).SetUint64(u))
 }
 
 func (vm *DebuggerVM) Push(x *uint256.Int) error {
-	err := vm.Stack.Push(x)
-	if err != nil {
-		return err
+	frame := vm.currentFrame()
+	if frame == nil {
+		return fmt.Errorf("no execution frame")
 	}
 
-	return nil
+	return frame.Stack.Push(x)
 }
 
 func (vm *DebuggerVM) ReadStorage(slot *uint256.Int) *uint256.Int {
@@ -213,12 +323,20 @@ func (vm *DebuggerVM) UseGas(amount uint64) error {
 }
 
 func (vm *DebuggerVM) IsValidPC(pc uint64) bool {
-	_, ok := vm.CodeMetadata.ValidPC[pc]
+	frame := vm.currentFrame()
+	if frame == nil || frame.CodeMetadata == nil {
+		return false
+	}
+	_, ok := frame.CodeMetadata.ValidPC[pc]
 	return ok
 }
 
 func (vm *DebuggerVM) IsJumpDest(pc uint64) bool {
-	_, ok := vm.CodeMetadata.JumpDests[pc]
+	frame := vm.currentFrame()
+	if frame == nil || frame.CodeMetadata == nil {
+		return false
+	}
+	_, ok := frame.CodeMetadata.JumpDests[pc]
 	return ok
 }
 
@@ -252,4 +370,173 @@ func scanCodeMetadata(code []byte) *CodeMetadata {
 		ValidPC:   validPC,
 		JumpDests: jumpDests,
 	}
+}
+
+// Frame management methods
+
+// currentFrame returns the current execution frame
+func (vm *DebuggerVM) currentFrame() *MessageFrame {
+	if len(vm.frames) == 0 {
+		return nil
+	}
+	return &vm.frames[len(vm.frames)-1]
+}
+
+// pushFrame adds a new execution frame
+func (vm *DebuggerVM) pushFrame(frame MessageFrame) error {
+	const maxCallDepth = 1024
+	if len(vm.frames) >= maxCallDepth {
+		return ErrCallDepthLimit
+	}
+
+	// Add new frame
+	vm.frames = append(vm.frames, frame)
+	return nil
+}
+
+// popFrame removes the current execution frame
+func (vm *DebuggerVM) popFrame() error {
+	if len(vm.frames) <= 1 {
+		return fmt.Errorf("cannot pop the root frame")
+	}
+
+	// Save return data from current frame
+	current := vm.currentFrame()
+	if current != nil {
+		vm.lastReturnData = current.ReturnData
+	}
+
+	// Remove current frame
+	vm.frames = vm.frames[:len(vm.frames)-1]
+	return nil
+}
+
+// CallDepth returns the current call depth
+func (vm *DebuggerVM) CallDepth() int {
+	return len(vm.frames)
+}
+
+// ReturnData returns the return data from the last call
+func (vm *DebuggerVM) ReturnData() []byte {
+	if len(vm.lastReturnData) == 0 {
+		return nil
+	}
+	return vm.lastReturnData
+}
+
+// ReturnDataSize returns the size of return data from the last call
+func (vm *DebuggerVM) ReturnDataSize() *uint256.Int {
+	return uint256.NewInt(uint64(len(vm.lastReturnData)))
+}
+
+// PushFrame adds a new execution frame (public method for opcodes)
+func (vm *DebuggerVM) PushFrame(frame MessageFrame) error {
+	return vm.pushFrame(frame)
+}
+
+// PopFrame removes the current execution frame (public method for opcodes)
+func (vm *DebuggerVM) PopFrame() error {
+	return vm.popFrame()
+}
+
+// ScanCodeMetadata is a public wrapper for scanCodeMetadata
+func ScanCodeMetadata(code []byte) *CodeMetadata {
+	return scanCodeMetadata(code)
+}
+
+// CurrentFrame returns the current execution frame (public method for opcodes)
+func (vm *DebuggerVM) CurrentFrame() *MessageFrame {
+	return vm.currentFrame()
+}
+
+// Properties that delegate to current frame
+
+// Stack returns the current frame's stack
+func (vm *DebuggerVM) Stack() *Stack {
+	frame := vm.currentFrame()
+	if frame == nil {
+		return nil
+	}
+	return frame.Stack
+}
+
+// Memory returns the current frame's memory
+func (vm *DebuggerVM) Memory() *Memory {
+	frame := vm.currentFrame()
+	if frame == nil {
+		return nil
+	}
+	return frame.Memory
+}
+
+// PC returns the current frame's program counter
+func (vm *DebuggerVM) PC() uint64 {
+	frame := vm.currentFrame()
+	if frame == nil {
+		return 0
+	}
+	return frame.PC
+}
+
+// Code returns the current frame's code
+func (vm *DebuggerVM) Code() []byte {
+	frame := vm.currentFrame()
+	if frame == nil {
+		return nil
+	}
+	return frame.Code
+}
+
+// SetPC sets the current frame's program counter
+func (vm *DebuggerVM) SetPC(pc uint64) {
+	frame := vm.currentFrame()
+	if frame != nil {
+		frame.PC = pc
+	}
+}
+
+// ExecuteCall executes the current frame until completion or revert
+func (vm *DebuggerVM) ExecuteCall() error {
+	// Save the stopped state and reset it for the call execution
+	originalStopped := vm.Stopped
+	vm.Stopped = false
+
+	frame := vm.currentFrame()
+	if frame == nil {
+		vm.Stopped = originalStopped
+		return fmt.Errorf("no execution frame")
+	}
+
+	// Execute until we hit RETURN, REVERT, or an error
+	for !vm.Stopped && int(frame.PC) < len(frame.Code) {
+		// Check if we're at a valid PC
+		if _, ok := frame.CodeMetadata.ValidPC[frame.PC]; !ok {
+			vm.Stopped = originalStopped
+			return fmt.Errorf("invalid PC: 0x%x (likely inside PUSH immediate)", frame.PC)
+		}
+
+		err := vm.Step()
+		if err != nil {
+			// Restore original stopped state
+			vm.Stopped = originalStopped
+			return err
+		}
+
+		// Refresh frame reference after step (in case of frame changes)
+		frame = vm.currentFrame()
+		if frame == nil {
+			vm.Stopped = originalStopped
+			return fmt.Errorf("execution frame disappeared")
+		}
+
+		// Check if execution completed normally
+		if frame.PC >= uint64(len(frame.Code)) {
+			vm.Stopped = true
+			break
+		}
+	}
+
+	// Restore original stopped state
+	vm.Stopped = originalStopped
+	return nil
 }

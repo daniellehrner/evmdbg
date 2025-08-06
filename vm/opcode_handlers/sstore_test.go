@@ -252,3 +252,108 @@ func TestSstoreZeroKey(t *testing.T) {
 		t.Fatalf("expected %s, got %s", expected, storedValue)
 	}
 }
+
+func TestSstoreInStaticCall(t *testing.T) {
+	// Test that SSTORE fails in a static call context
+	code := []byte{
+		vm.PUSH1, 0x42, // value
+		vm.PUSH1, 0x00, // slot
+		vm.SSTORE, // SSTORE (should fail in static context)
+	}
+
+	d := vm.NewDebuggerVM(code, GetHandler)
+
+	// Create a static frame (simulating STATICCALL context)
+	staticFrame := vm.MessageFrame{
+		Code:         code,
+		PC:           0,
+		Stack:        vm.NewStack(),
+		Memory:       vm.NewMemory(),
+		ReturnData:   nil,
+		Gas:          1000,
+		CallType:     vm.CallTypeStaticCall,
+		IsStatic:     true, // This is the key flag
+		CodeMetadata: vm.ScanCodeMetadata(code),
+	}
+
+	// Push the static frame
+	err := d.PushFrame(staticFrame)
+	if err != nil {
+		t.Fatalf("failed to push static frame: %v", err)
+	}
+
+	// Execute until we hit SSTORE
+	for !d.Stopped && d.PC() < uint64(len(d.Code())) {
+		op := d.Code()[d.PC()]
+		if op == vm.SSTORE {
+			// This should fail with static call error
+			err := d.Step()
+			if err != vm.ErrStaticCallStateChange {
+				t.Fatalf("expected ErrStaticCallStateChange, got: %v", err)
+			}
+			return
+		}
+		err := d.Step()
+		if err != nil {
+			t.Fatalf("execution error before SSTORE: %v", err)
+		}
+	}
+
+	t.Fatalf("SSTORE was not executed")
+}
+
+func TestSstoreAfterStaticCallReturns(t *testing.T) {
+	// Test that SSTORE works after returning from a static call
+	code := []byte{
+		vm.PUSH1, 0x99, // value
+		vm.PUSH1, 0x01, // slot
+		vm.SSTORE, // SSTORE (should work after static call returns)
+	}
+
+	d := vm.NewDebuggerVM(code, GetHandler)
+	d.Storage = make(map[string]*uint256.Int)
+
+	// Simulate being in a static call and then returning
+	staticFrame := vm.MessageFrame{
+		Code:         []byte{vm.RETURN}, // Simple return
+		PC:           0,
+		Stack:        vm.NewStack(),
+		Memory:       vm.NewMemory(),
+		ReturnData:   nil,
+		Gas:          1000,
+		CallType:     vm.CallTypeStaticCall,
+		IsStatic:     true,
+		CodeMetadata: vm.ScanCodeMetadata([]byte{vm.RETURN}),
+	}
+
+	// Push static frame and then pop it (simulating return from static call)
+	err := d.PushFrame(staticFrame)
+	if err != nil {
+		t.Fatalf("failed to push static frame: %v", err)
+	}
+
+	err = d.PopFrame()
+	if err != nil {
+		t.Fatalf("failed to pop static frame: %v", err)
+	}
+
+	// Now we should be back in normal context, SSTORE should work
+	for !d.Stopped && d.PC() < uint64(len(d.Code())) {
+		err := d.Step()
+		if err != nil {
+			t.Fatalf("execution error: %v", err)
+		}
+	}
+
+	// Verify that the storage was written
+	key := "0000000000000000000000000000000000000000000000000000000000000001"
+	storedValue, exists := d.Storage[key]
+	if !exists {
+		t.Fatalf("storage key %s not found", key)
+	}
+
+	expected := uint256.NewInt(0x99)
+	if storedValue.Cmp(expected) != 0 {
+		t.Fatalf("expected %s, got %s", expected, storedValue)
+	}
+}

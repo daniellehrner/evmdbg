@@ -24,7 +24,7 @@ func TestMulmodBasic(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(2)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -48,7 +48,7 @@ func TestMulmodZeroModulus(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0 for zero modulus, got %s", result)
 	}
@@ -71,7 +71,7 @@ func TestMulmodZeroOperands(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0, got %s", result)
 	}
@@ -94,7 +94,7 @@ func TestMulmodOne(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(2) // 7 % 5 = 2
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -125,7 +125,7 @@ func TestMulmodLargeNumbers(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	// 2^200 * 2^100 = 2^300
 	// 2^300 % 2^64 = 0 (since 2^300 is divisible by 2^64)
 	if !result.IsZero() {
@@ -150,7 +150,7 @@ func TestMulmodModulusOne(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0 for modulus 1, got %s", result)
 	}
@@ -173,7 +173,7 @@ func TestMulmodExactDivision(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0 for exact division, got %s", result)
 	}
@@ -202,7 +202,7 @@ func TestMulmodOverflowPrevention(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 
 	// max * max = (2^256 - 1)^2 = 2^512 - 2^257 + 1
 	// This mod 1000 should give some non-zero result
@@ -232,7 +232,7 @@ func TestMulmodCommutative(t *testing.T) {
 		}
 	}
 
-	result1, _ := d1.Stack.Pop()
+	result1, _ := d1.Stack().Pop()
 
 	// Second: (7 * 3) % 5
 	code2 := []byte{
@@ -250,7 +250,7 @@ func TestMulmodCommutative(t *testing.T) {
 		}
 	}
 
-	result2, _ := d2.Stack.Pop()
+	result2, _ := d2.Stack().Pop()
 
 	// Results should be equal
 	if result1.Cmp(result2) != 0 {

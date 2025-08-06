@@ -17,7 +17,7 @@ func (*ReturnOpCode) Execute(v *vm.DebuggerVM) error {
 	}
 
 	// The return value is the memory content from the specified offset and size.
-	v.ReturnValue = v.Memory.Read(int(offset.Uint64()), int(size.Uint64()))
+	v.ReturnValue = v.Memory().Read(int(offset.Uint64()), int(size.Uint64()))
 
 	// Set the stopped flag to true to indicate that the execution should stop.
 	v.Stopped = true

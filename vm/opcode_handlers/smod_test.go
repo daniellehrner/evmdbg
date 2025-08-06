@@ -23,7 +23,7 @@ func TestSmodPositiveNumbers(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(1)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -51,7 +51,7 @@ func TestSmodNegativeDividend(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := new(uint256.Int).Sub(new(uint256.Int), uint256.NewInt(1)) // -1
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -77,7 +77,7 @@ func TestSmodPositiveDividendNegativeDivisor(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(1) // Positive result (sign follows dividend)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -105,7 +105,7 @@ func TestSmodNegativeBoth(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := new(uint256.Int).Sub(new(uint256.Int), uint256.NewInt(1)) // -1
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -128,7 +128,7 @@ func TestSmodDivisionByZero(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0 for division by zero, got %s", result)
 	}
@@ -150,7 +150,7 @@ func TestSmodZeroDividend(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0, got %s", result)
 	}
@@ -172,7 +172,7 @@ func TestSmodExactDivision(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0, got %s", result)
 	}
@@ -198,7 +198,7 @@ func TestSmodNegativeExactDivision(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0, got %s", result)
 	}
@@ -225,7 +225,7 @@ func TestSmodLargeNumbers(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := new(uint256.Int).Sub(new(uint256.Int).Lsh(uint256.NewInt(1), 254), uint256.NewInt(1)) // 2^254 - 1
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -255,7 +255,7 @@ func TestSmodSignBehavior(t *testing.T) {
 		}
 	}
 
-	result1, _ := d1.Stack.Pop()
+	result1, _ := d1.Stack().Pop()
 	expected1 := new(uint256.Int).Sub(new(uint256.Int), uint256.NewInt(1)) // -1
 	if result1.Cmp(expected1) != 0 {
 		t.Fatalf("Case 1: expected %s, got %s", expected1, result1)
@@ -278,7 +278,7 @@ func TestSmodSignBehavior(t *testing.T) {
 		}
 	}
 
-	result2, _ := d2.Stack.Pop()
+	result2, _ := d2.Stack().Pop()
 	expected2 := uint256.NewInt(1) // 1 (positive)
 	if result2.Cmp(expected2) != 0 {
 		t.Fatalf("Case 2: expected %s, got %s", expected2, result2)
@@ -311,7 +311,7 @@ func TestSmodVsMod(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := new(uint256.Int).Sub(new(uint256.Int), uint256.NewInt(2)) // -2 (since -2 % 5 = -2)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("SMOD: expected %s, got %s", expected, result)

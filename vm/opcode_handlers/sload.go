@@ -11,11 +11,11 @@ func (*SLoadOpCode) Execute(v *vm.DebuggerVM) error {
 	}
 
 	// If the sign bit is 0 (positive number):
-	slot, err := v.Stack.Pop()
+	slot, err := v.Stack().Pop()
 	if err != nil {
 		return err
 	}
 
 	// Read the storage at the specified slot and push it onto the stack.
-	return v.Stack.Push(v.ReadStorage(slot))
+	return v.Stack().Push(v.ReadStorage(slot))
 }

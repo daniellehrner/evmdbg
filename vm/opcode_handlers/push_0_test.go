@@ -21,11 +21,11 @@ func TestPush0(t *testing.T) {
 		}
 	}
 
-	if d.Stack.Len() != 1 {
-		t.Fatalf("expected 1 item on stack, got %d", d.Stack.Len())
+	if d.Stack().Len() != 1 {
+		t.Fatalf("expected 1 item on stack, got %d", d.Stack().Len())
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0, got %s", result)
 	}
@@ -47,13 +47,13 @@ func TestPush0Multiple(t *testing.T) {
 		}
 	}
 
-	if d.Stack.Len() != 3 {
-		t.Fatalf("expected 3 items on stack, got %d", d.Stack.Len())
+	if d.Stack().Len() != 3 {
+		t.Fatalf("expected 3 items on stack, got %d", d.Stack().Len())
 	}
 
 	// All should be zero
 	for i := 0; i < 3; i++ {
-		result, _ := d.Stack.Pop()
+		result, _ := d.Stack().Pop()
 		if !result.IsZero() {
 			t.Fatalf("expected 0 at position %d, got %s", i, result)
 		}
@@ -76,11 +76,11 @@ func TestPush0WithOtherOps(t *testing.T) {
 		}
 	}
 
-	if d.Stack.Len() != 1 {
-		t.Fatalf("expected 1 item on stack, got %d", d.Stack.Len())
+	if d.Stack().Len() != 1 {
+		t.Fatalf("expected 1 item on stack, got %d", d.Stack().Len())
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(0x42)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)

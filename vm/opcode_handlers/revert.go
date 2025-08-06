@@ -17,7 +17,7 @@ func (*RevertOpCode) Execute(v *vm.DebuggerVM) error {
 	}
 
 	// The REVERT opcode sets the return value to the memory content from the specified offset and size.
-	v.ReturnValue = v.Memory.Read(int(offset.Uint64()), int(size.Uint64()))
+	v.ReturnValue = v.Memory().Read(int(offset.Uint64()), int(size.Uint64()))
 
 	// Set the reverted and stopped flags to true to indicate that the execution has been reverted.
 	v.Reverted = true

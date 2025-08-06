@@ -27,11 +27,11 @@ func TestMloadBasic(t *testing.T) {
 	}
 
 	// Should have loaded the stored value
-	if d.Stack.Len() != 1 {
-		t.Fatalf("expected 1 item on stack, got %d", d.Stack.Len())
+	if d.Stack().Len() != 1 {
+		t.Fatalf("expected 1 item on stack, got %d", d.Stack().Len())
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(0x1234)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -53,7 +53,7 @@ func TestMloadZero(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if !result.IsZero() {
 		t.Fatalf("expected 0 from uninitialized memory, got %s", result)
 	}
@@ -85,7 +85,7 @@ func TestMloadOffset(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(0x2222)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -118,7 +118,7 @@ func TestMloadLargeValue(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	if result.Cmp(largeValue) != 0 {
 		t.Fatalf("expected %s, got %s", largeValue, result)
 	}
@@ -145,7 +145,7 @@ func TestMloadUnaligned(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 
 	// When loading from offset 1, we get bytes 1-32 instead of 0-31
 	// The stored value 0xAABBCCDD is at bytes 28-31 of the 32-byte word
@@ -189,7 +189,7 @@ func TestMloadAfterMultipleStores(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(0x22)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)

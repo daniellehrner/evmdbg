@@ -42,6 +42,6 @@ func (*CallDataCopyOpCode) Execute(v *vm.DebuggerVM) error {
 	}
 
 	// Write the data to memory at the specified memory offset.
-	v.Memory.Write(int(memOffset.Uint64()), data)
+	v.Memory().Write(int(memOffset.Uint64()), data)
 	return nil
 }

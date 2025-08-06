@@ -28,6 +28,6 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("Stopped at PC: %d\n", v.PC)
-	fmt.Printf("Stack: %s\n", v.Stack.String())
+	fmt.Printf("Stopped at PC: %d\n", v.PC())
+	fmt.Printf("Stack: %s\n", v.Stack().String())
 }

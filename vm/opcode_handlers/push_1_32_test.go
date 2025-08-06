@@ -21,7 +21,7 @@ func TestPush1(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(0x42)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -42,7 +42,7 @@ func TestPush2(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(0x1234)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -63,7 +63,7 @@ func TestPush4(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(0x12345678)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -84,7 +84,7 @@ func TestPush8(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(0).SetBytes([]byte{0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88})
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -110,7 +110,7 @@ func TestPush16(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(0).SetBytes(data)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -138,7 +138,7 @@ func TestPush32(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := uint256.NewInt(0).SetBytes(data)
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)
@@ -163,7 +163,7 @@ func TestPushZeros(t *testing.T) {
 
 	// All three values should be zero
 	for i := 0; i < 3; i++ {
-		result, _ := d.Stack.Pop()
+		result, _ := d.Stack().Pop()
 		if !result.IsZero() {
 			t.Fatalf("expected 0 at position %d, got %s", i, result)
 		}
@@ -187,21 +187,21 @@ func TestPushMaxValues(t *testing.T) {
 	}
 
 	// Check PUSH4 result (0xFFFFFFFF)
-	result4, _ := d.Stack.Pop()
+	result4, _ := d.Stack().Pop()
 	expected4 := uint256.NewInt(0xFFFFFFFF)
 	if result4.Cmp(expected4) != 0 {
 		t.Fatalf("PUSH4: expected %s, got %s", expected4, result4)
 	}
 
 	// Check PUSH2 result (0xFFFF)
-	result2, _ := d.Stack.Pop()
+	result2, _ := d.Stack().Pop()
 	expected2 := uint256.NewInt(0xFFFF)
 	if result2.Cmp(expected2) != 0 {
 		t.Fatalf("PUSH2: expected %s, got %s", expected2, result2)
 	}
 
 	// Check PUSH1 result (0xFF)
-	result1, _ := d.Stack.Pop()
+	result1, _ := d.Stack().Pop()
 	expected1 := uint256.NewInt(0xFF)
 	if result1.Cmp(expected1) != 0 {
 		t.Fatalf("PUSH1: expected %s, got %s", expected1, result1)
@@ -225,26 +225,26 @@ func TestPushSequence(t *testing.T) {
 	}
 
 	// Stack should have [1, 0x0202, 0x030303] (most recent on top)
-	if d.Stack.Len() != 3 {
-		t.Fatalf("expected 3 items on stack, got %d", d.Stack.Len())
+	if d.Stack().Len() != 3 {
+		t.Fatalf("expected 3 items on stack, got %d", d.Stack().Len())
 	}
 
 	// Check PUSH3 result (0x030303)
-	result3, _ := d.Stack.Pop()
+	result3, _ := d.Stack().Pop()
 	expected3 := uint256.NewInt(0x030303)
 	if result3.Cmp(expected3) != 0 {
 		t.Fatalf("PUSH3: expected %s, got %s", expected3, result3)
 	}
 
 	// Check PUSH2 result (0x0202)
-	result2, _ := d.Stack.Pop()
+	result2, _ := d.Stack().Pop()
 	expected2 := uint256.NewInt(0x0202)
 	if result2.Cmp(expected2) != 0 {
 		t.Fatalf("PUSH2: expected %s, got %s", expected2, result2)
 	}
 
 	// Check PUSH1 result (1)
-	result1, _ := d.Stack.Pop()
+	result1, _ := d.Stack().Pop()
 	expected1 := uint256.NewInt(1)
 	if result1.Cmp(expected1) != 0 {
 		t.Fatalf("PUSH1: expected %s, got %s", expected1, result1)
@@ -270,7 +270,7 @@ func TestPush32MaxValue(t *testing.T) {
 		}
 	}
 
-	result, _ := d.Stack.Pop()
+	result, _ := d.Stack().Pop()
 	expected := new(uint256.Int).SetAllOne()
 	if result.Cmp(expected) != 0 {
 		t.Fatalf("expected %s, got %s", expected, result)

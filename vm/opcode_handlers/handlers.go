@@ -66,6 +66,10 @@ var handlers = map[vm.OpCode]vm.Handler{
 	vm.LOG2:           &LogNOpCode{N: 2},
 	vm.LOG3:           &LogNOpCode{N: 3},
 	vm.LOG4:           &LogNOpCode{N: 4},
+	vm.CALL:           &CallOpCode{},
+	vm.CALLCODE:       &CallCodeOpCode{},
+	vm.DELEGATECALL:   &DelegateCallOpCode{},
+	vm.STATICCALL:     &StaticCallOpCode{},
 	vm.RETURN:         &ReturnOpCode{},
 	vm.REVERT:         &RevertOpCode{},
 }

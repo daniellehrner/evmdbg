@@ -19,7 +19,7 @@ func (*BalanceOpCode) Execute(v *vm.DebuggerVM) error {
 	}
 
 	// Pop the address from the stack.
-	addrBytes, err := v.Stack.Pop()
+	addrBytes, err := v.Stack().Pop()
 	if err != nil {
 		return err
 	}

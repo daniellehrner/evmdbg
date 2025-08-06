@@ -33,5 +33,5 @@ func (p *PushNOpCode) Execute(v *vm.DebuggerVM) error {
 	v.AdvancePC(uint64(p.N))
 
 	val := new(uint256.Int).SetBytes(data)
-	return v.Stack.Push(val)
+	return v.Stack().Push(val)
 }

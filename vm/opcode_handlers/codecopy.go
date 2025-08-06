@@ -21,16 +21,16 @@ func (*CodeCopyOpCode) Execute(v *vm.DebuggerVM) error {
 	data := make([]byte, length.Uint64())
 
 	// If the start offset is beyond the length of the code, we write zeroes.
-	if start < uint64(len(v.Code)) {
+	if start < uint64(len(v.Code())) {
 		copyEnd := end
 
 		// If the end offset exceeds the length of code, we adjust it.
-		if copyEnd > uint64(len(v.Code)) {
-			copyEnd = uint64(len(v.Code))
+		if copyEnd > uint64(len(v.Code())) {
+			copyEnd = uint64(len(v.Code()))
 		}
-		copy(data, v.Code[start:copyEnd])
+		copy(data, v.Code()[start:copyEnd])
 	}
 
-	v.Memory.Write(int(memOffset.Uint64()), data)
+	v.Memory().Write(int(memOffset.Uint64()), data)
 	return nil
 }

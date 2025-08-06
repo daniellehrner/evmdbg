@@ -1,7 +1,6 @@
 package opcode_handlers
 
 import (
-	"fmt"
 	"github.com/daniellehrner/evmdbg/vm"
 )
 
@@ -14,7 +13,7 @@ func (*JumpOpCode) Execute(v *vm.DebuggerVM) error {
 	}
 
 	// Pop the target PC from the stack.
-	target, err := v.Stack.Pop()
+	target, err := v.Stack().Pop()
 	if err != nil {
 		return err
 	}
@@ -22,9 +21,9 @@ func (*JumpOpCode) Execute(v *vm.DebuggerVM) error {
 	// The target must be a valid jump destination.
 	pc := target.Uint64()
 	if !v.IsJumpDest(pc) {
-		return fmt.Errorf("invalid jump target: 0x%x", pc)
+		return vm.ErrInvalidJump
 	}
 
-	v.PC = pc
+	v.SetPC(pc)
 	return nil
 }

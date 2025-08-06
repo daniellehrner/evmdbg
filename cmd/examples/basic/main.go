@@ -15,7 +15,7 @@ func main() {
 	v := evmdbg.CreateDebuggerVM(code)
 
 	for !v.Stopped {
-		fmt.Printf("PC: %d, Stack: %s\n", v.PC, v.Stack.String())
+		fmt.Printf("PC: %d, Stack: %s\n", v.PC(), v.Stack().String())
 		err := v.Step()
 		if err != nil {
 			fmt.Printf("Execution error: %v\n", err)
@@ -23,5 +23,5 @@ func main() {
 		}
 	}
 
-	fmt.Printf("Final Stack: %s\n", v.Stack.String())
+	fmt.Printf("Final Stack: %s\n", v.Stack().String())
 }
