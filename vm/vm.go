@@ -28,8 +28,9 @@ type DebuggerVM struct {
 	frames []MessageFrame
 
 	// VM state
-	Storage map[string]*uint256.Int
-	Stopped bool
+	Storage          map[string]*uint256.Int
+	TransientStorage map[string]*uint256.Int // EIP-1153: Transient storage
+	Stopped          bool
 
 	ReturnValue []byte
 	Reverted    bool
@@ -140,9 +141,10 @@ func NewDebuggerVM(code []byte, hg HandlerGetter) *DebuggerVM {
 	}
 
 	vm := &DebuggerVM{
-		frames:        []MessageFrame{initialFrame},
-		Storage:       make(map[string]*uint256.Int),
-		HandlerGetter: hg,
+		frames:           []MessageFrame{initialFrame},
+		Storage:          make(map[string]*uint256.Int),
+		TransientStorage: make(map[string]*uint256.Int),
+		HandlerGetter:    hg,
 	}
 
 	return vm
@@ -309,6 +311,24 @@ func (vm *DebuggerVM) ReadStorage(slot *uint256.Int) *uint256.Int {
 func (vm *DebuggerVM) WriteStorage(slot *uint256.Int, value *uint256.Int) {
 	key := fmt.Sprintf("%064x", slot)
 	vm.Storage[key] = new(uint256.Int).Set(value)
+}
+
+func (vm *DebuggerVM) ReadTransientStorage(slot *uint256.Int) *uint256.Int {
+	key := fmt.Sprintf("%064x", slot) // 32-byte hex string
+	val := vm.TransientStorage[key]
+	if val == nil {
+		return new(uint256.Int) // default zero
+	}
+	return new(uint256.Int).Set(val)
+}
+
+func (vm *DebuggerVM) WriteTransientStorage(slot *uint256.Int, value *uint256.Int) {
+	key := fmt.Sprintf("%064x", slot)
+	vm.TransientStorage[key] = new(uint256.Int).Set(value)
+}
+
+func (vm *DebuggerVM) ClearTransientStorage() {
+	vm.TransientStorage = make(map[string]*uint256.Int)
 }
 
 func (vm *DebuggerVM) PushBytes(data []byte) error {

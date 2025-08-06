@@ -67,6 +67,8 @@ var handlers = map[vm.OpCode]vm.Handler{
 	vm.MSIZE:          &MSizeOpCode{},
 	vm.GAS:            &GasOpCode{},
 	vm.JUMPDEST:       &JumpDestOpCode{},
+	vm.TLOAD:          &TLoadOpCode{},
+	vm.TSTORE:         &TStoreOpCode{},
 	vm.MCOPY:          &MCopyOpCode{},
 	vm.PUSH0:          &Push0OpCode{},
 	vm.LOG0:           &LogNOpCode{N: 0},
