@@ -1,6 +1,7 @@
 # evmdbg
 
-A minimal Ethereum Virtual Machine (EVM) execution engine and debugger written in Go. Designed for clarity, simplicity, and fast iteration.
+A minimal Ethereum Virtual Machine (EVM) execution engine and debugger written in Go. Designed for clarity, simplicity,
+and fast iteration.
 
 > ⚠️ **Experimental Project**
 >
@@ -10,22 +11,26 @@ A minimal Ethereum Virtual Machine (EVM) execution engine and debugger written i
 
 ## Features
 
- - Core EVM opcode support (arithmetic, memory, storage, control flow, calls)
- - Call opcode support (`CALL`, `CALLCODE`, `DELEGATECALL`, `STATICCALL`)
- - Frame-based execution model with proper call context switching
- - Static call protection preventing state changes in static contexts
- - In-memory stack, memory, and storage model
- - Simulates EVM bytecode with step-by-step introspection
- - Clean, extensible opcode handler architecture
- - Usable as a CLI tool or embeddable in debugging UIs
+- **Complete EVM opcode support** - All standard EVM opcodes implemented
+- **Frame-based execution model** with proper call context switching and return data handling
+- **Static call protection** preventing state changes in static contexts
+- **In-memory stack, memory, and storage model** with proper EVM semantics
+- **Step-by-step introspection** - Examine VM state at any point during execution
+- **Clean, extensible opcode handler architecture** - Easy to add new opcodes or modify existing ones
+- **Usable as a CLI tool or embeddable library** for debugging UIs
 
 ## Status
 
-Implemented opcodes: ~95% of commonly used opcodes.
+**Opcodes**: All standard EVM opcodes are now implemented
 
-**Missing**: `CREATE`, `CREATE2`, `SELFDESTRUCT`, some precompiled contracts
+**Missing**: Precompiled contracts (ECRECOVER, SHA256, RIPEMD160, IDENTITY, MODEXP, ECADD, ECMUL, ECPAIRING, BLAKE2F,
+etc.)
 
-The full set of implemented opcodes can be found in the [vm/opcodes.go](vm/opcodes.go).
+The complete set of implemented opcodes can be found in [vm/opcodes.go](vm/opcodes.go).
+
+**EIP Compliance**:
+
+- **Latest EVM**: Implements the most current EVM specification
 
 ## Using as a Library
 
@@ -34,6 +39,7 @@ Here are some examples of how to use the `evmdbg` package in your Go application
 ### Step-by-Step Execution
 
 You can step through the execution one instruction at a time:
+
 ```go
 package main
 
@@ -67,7 +73,8 @@ func main() {
 
 ### Run Until Breakpoint
 
-You can execute the VM until it reaches a specific program counter (PC) using RunUntil. This avoids stepping into the middle of immediates (e.g., PUSH32 payloads):
+You can execute the VM until it reaches a specific program counter (PC) using RunUntil. This avoids stepping into the
+middle of immediates (e.g., PUSH32 payloads):
 
 ```go
 package main
@@ -182,6 +189,7 @@ func main() {
 ```
 
 ## Goals
+
 - Tooling: a base for debuggers, linters, language servers, or smart contract playgrounds
 - Educational: a readable, hackable EVM core for learning and experimentation
 
@@ -190,26 +198,33 @@ func main() {
 The project includes several example programs demonstrating different use cases:
 
 ### Basic Example
+
 ```bash
 go run cmd/examples/basic/main.go
 ```
+
 Simple step-by-step execution of basic arithmetic operations.
 
-### Inspection Example  
+### Inspection Example
+
 ```bash
 go run cmd/examples/inspect/main.go
 ```
+
 Demonstrates full state introspection during execution (stack, memory, storage).
 
 ### Run Until Example
+
 ```bash
 go run cmd/examples/run_until/main.go
 ```
+
 Shows breakpoint-style execution using `RunUntil()` method.
 
 ## Development
 
 ### Building and Testing
+
 ```bash
 # Build the project
 go build ./...
@@ -245,12 +260,13 @@ When adding new opcodes:
 4. Add comprehensive tests in `vm/opcode_handlers/{opcode}_test.go`
 
 Tests should follow the pattern:
+
 1. Create bytecode with the opcode and operands
 2. Initialize VM and step through execution
 3. Verify final state (stack, memory, storage, logs)
 
 ## Future Work
- - Add missing op codes and precompiled contracts
- - Source mapping and symbolic variable tracking
- - Basic gas accounting
- - Precompiled contract support
+
+- **Precompiled contracts** - Implement standard precompiles (ECRECOVER, SHA256, etc.)
+- **Gas accounting** - Add proper gas metering and limits
+- **Source mapping** - Support for source map debugging
